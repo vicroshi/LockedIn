@@ -1,7 +1,7 @@
-defmodule LockedIn.AllFixtures do
+defmodule LockedIn.UsersFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `LockedIn.All` context.
+  entities via the `LockedIn.Users` context.
   """
 
   @doc """
@@ -17,23 +17,8 @@ defmodule LockedIn.AllFixtures do
         password: "some password",
         phone: "some phone"
       })
-      |> LockedIn.All.create_user()
+      |> LockedIn.Users.create_user()
 
     user
-  end
-
-  @doc """
-  Generate a post.
-  """
-  def post_fixture(attrs \\ %{}) do
-    {:ok, post} =
-      attrs
-      |> Enum.into(%{
-        content: "some content",
-        media: "some media"
-      })
-      |> LockedIn.All.create_post()
-
-    post
   end
 end

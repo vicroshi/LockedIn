@@ -21,4 +21,5 @@ defmodule LockedInWeb.FallbackController do
     |> put_view(html: LockedInWeb.ErrorHTML, json: LockedInWeb.ErrorJSON)
     |> render(:"404")
   end
+
 end
