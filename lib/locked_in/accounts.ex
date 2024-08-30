@@ -6,7 +6,7 @@ defmodule LockedIn.Accounts do
   import Ecto.Query, warn: false
   alias LockedIn.Repo
 
-  alias LockedIn.Accounts.{User, UserToken, UserNotifier}
+  alias LockedIn.Accounts.{User, UserToken, UserNotifier,Connection}
 
   ## Database getters
 
@@ -60,6 +60,11 @@ defmodule LockedIn.Accounts do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  def get_user_with_liked_posts(id), do: Repo.one(from u in User, where: u.id == ^id, preload: [:liked_posts])
+
+  def with_assoc(user, assocs\\[]), do: Repo.preload(user, assocs)
+  # def get_users_liked_posts(user), do: Repo.preload(user, :liked_posts)
+
   ## User registration
 
   @doc """
@@ -76,6 +81,7 @@ defmodule LockedIn.Accounts do
   """
   def register_user(attrs) do
     changeset = User.registration_changeset(%User{},attrs)
+
     Repo.insert(changeset)
   end
 
@@ -397,5 +403,114 @@ defmodule LockedIn.Accounts do
       {:ok, %{user: user}} -> {:ok, user}
       {:error, :user, changeset, _} -> {:error, changeset}
     end
+  end
+
+  alias LockedIn.Accounts.Connection
+
+  @doc """
+  Returns the list of connections.
+
+  ## Examples
+
+      iex> list_connections()
+      [%Connection{}, ...]
+
+  """
+  def list_connections do
+    Repo.all(Connection)
+  end
+
+  @doc """
+  Gets a single connection.
+
+  Raises `Ecto.NoResultsError` if the Connection does not exist.
+
+  ## Examples
+
+      iex> get_connection!(123)
+      %Connection{}
+
+      iex> get_connection!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_connection(%{"requester_id" => requester_id, "requestee_id" => requestee_id}) do
+      Repo.get_by(Connection, requester_id: requester_id, requestee_id: requestee_id)
+  end
+
+  @doc """
+  Creates a connection.
+
+  ## Examples
+
+      iex> create_connection(%{field: value})
+      {:ok, %Connection{}}
+
+      iex> create_connection(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def request_connection(attrs \\ %{}) do
+    %Connection{}
+    |> Connection.request_changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a connection.
+
+  ## Examples
+
+      iex> update_connection(connection, %{field: new_value})
+      {:ok, %Connection{}}
+
+      iex> update_connection(connection, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def accept_connection(%Connection{} = connection) do
+    connection
+    |> Connection.accept_changeset()
+    |> Repo.update()
+  end
+
+  def delete_connection(user, id) do
+    query = from(c in Connection, where: (c.requester_id == ^id and c.requestee_id == ^user.id) or (c.requestee_id == ^id and c.requester_id == ^user.id))
+    Repo.delete_all(query)
+    # Repo.delete
+    # user
+    # |>
+    # Repo.preload([:connections, :reverse_connections])
+    # |>
+    # IO.inspect()
+  end
+
+  @doc """
+  Deletes a connection.
+
+  ## Examples
+
+      iex> delete_connection(connection)
+      {:ok, %Connection{}}
+
+      iex> delete_connection(connection)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_connection(%Connection{} = connection) do
+    Repo.delete(connection)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking connection changes.
+
+  ## Examples
+
+      iex> change_connection(connection)
+      %Ecto.Changeset{data: %Connection{}}
+
+  """
+  def change_connection(%Connection{} = connection, attrs \\ %{}) do
+    Connection.changeset(connection, attrs)
   end
 end

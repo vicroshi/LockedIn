@@ -1,24 +1,23 @@
 defmodule LockedInWeb.UserController do
   use LockedInWeb, :controller
 
-  alias LockedIn.Users
-  alias LockedIn.Users.User
+  alias LockedIn.Accounts
+  alias LockedIn.Accounts.User
   alias LockedIn.Accounts
   action_fallback LockedInWeb.FallbackController
-
   def index(conn, _params) do
-    users = Users.list_users()
+    users = Accounts.list_users()
     render(conn, :index, users: users)
   end
 
   # def register(conn, %{email: email, }params) do
-    # Users.create_user()
+    # Accounts.create_user()
     # token = Accounts.create_user_api_token()
     # render(conn, :register)
   # end
 
   def create(conn, %{"user" => user_params}) do
-    with {:ok, %User{} = user} <- Users.create_user(user_params) do
+    with {:ok, %User{} = user} <- Accounts.create_user(user_params) do
       token = Accounts.create_user_api_token(user)
       conn
       |> put_session(:user_token, token)
@@ -28,24 +27,38 @@ defmodule LockedInWeb.UserController do
     end
   end
 
+  # def like(conn, ) do
+    #
+  # end
+
   def show(conn, %{"id" => id}) do
-    user = Users.get_user!(id)
+    user = Accounts.get_user!(id)
     render(conn, :show, user: user)
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
-    user = Users.get_user!(id)
+    user = Accounts.get_user!(id)
 
-    with {:ok, %User{} = user} <- Users.update_user(user, user_params) do
+    with {:ok, %User{} = user} <- Accounts.update_user(user, user_params) do
       render(conn, :show, user: user)
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    user = Users.get_user!(id)
+    user = Accounts.get_user!(id)
 
-    with {:ok, %User{}} <- Users.delete_user(user) do
+    with {:ok, %User{}} <- Accounts.delete_user(user) do
       send_resp(conn, :no_content, "")
     end
   end
+
+  def liked_posts(conn, %{"user_id" => user_id}) do
+    # liked_posts = Accounts.get_user_with_liked_posts(user_id)
+    user = Accounts.get_user!(user_id) |> Accounts.with_assoc([:liked_posts])
+    liked_posts = user.liked_posts
+    conn
+    |> put_view(LockedInWeb.PostJSON)
+    |> render(:index, posts: liked_posts)
+  end
+
 end

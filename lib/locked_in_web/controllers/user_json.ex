@@ -12,8 +12,6 @@ defmodule LockedInWeb.UserJSON do
   Renders a single user.
   """
   def register(%{token: token, user: user, conn: conn}) do
-    IO.inspect(conn.assigns.user.id)
-    IO.inspect(conn.assigns.token)
     %{
       token: token,
       user_data: data(user)

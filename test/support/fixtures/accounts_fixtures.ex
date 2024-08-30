@@ -28,4 +28,18 @@ defmodule LockedIn.AccountsFixtures do
     [_, token | _] = String.split(captured_email.text_body, "[TOKEN]")
     token
   end
+
+  @doc """
+  Generate a connection.
+  """
+  def connection_fixture(attrs \\ %{}) do
+    {:ok, connection} =
+      attrs
+      |> Enum.into(%{
+        has_accepted: true
+      })
+      |> LockedIn.Accounts.create_connection()
+
+    connection
+  end
 end

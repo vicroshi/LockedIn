@@ -505,4 +505,58 @@ defmodule LockedIn.AccountsTest do
       refute inspect(%User{password: "123456"}) =~ "password: \"123456\""
     end
   end
+
+  describe "connections" do
+    alias LockedIn.Accounts.Connection
+
+    import LockedIn.AccountsFixtures
+
+    @invalid_attrs %{has_accepted: nil}
+
+    test "list_connections/0 returns all connections" do
+      connection = connection_fixture()
+      assert Accounts.list_connections() == [connection]
+    end
+
+    test "get_connection!/1 returns the connection with given id" do
+      connection = connection_fixture()
+      assert Accounts.get_connection!(connection.id) == connection
+    end
+
+    test "create_connection/1 with valid data creates a connection" do
+      valid_attrs = %{has_accepted: true}
+
+      assert {:ok, %Connection{} = connection} = Accounts.create_connection(valid_attrs)
+      assert connection.has_accepted == true
+    end
+
+    test "create_connection/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_connection(@invalid_attrs)
+    end
+
+    test "update_connection/2 with valid data updates the connection" do
+      connection = connection_fixture()
+      update_attrs = %{has_accepted: false}
+
+      assert {:ok, %Connection{} = connection} = Accounts.update_connection(connection, update_attrs)
+      assert connection.has_accepted == false
+    end
+
+    test "update_connection/2 with invalid data returns error changeset" do
+      connection = connection_fixture()
+      assert {:error, %Ecto.Changeset{}} = Accounts.update_connection(connection, @invalid_attrs)
+      assert connection == Accounts.get_connection!(connection.id)
+    end
+
+    test "delete_connection/1 deletes the connection" do
+      connection = connection_fixture()
+      assert {:ok, %Connection{}} = Accounts.delete_connection(connection)
+      assert_raise Ecto.NoResultsError, fn -> Accounts.get_connection!(connection.id) end
+    end
+
+    test "change_connection/1 returns a connection changeset" do
+      connection = connection_fixture()
+      assert %Ecto.Changeset{} = Accounts.change_connection(connection)
+    end
+  end
 end

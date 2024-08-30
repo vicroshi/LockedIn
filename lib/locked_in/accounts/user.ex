@@ -1,7 +1,10 @@
 defmodule LockedIn.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
-
+  alias LockedIn.Accounts.Connection
+  alias LockedIn.Posts.Post
+  alias LockedIn.Accounts.User
+  alias LockedIn.Posts.Like
   schema "users" do
     field :email, :string
     field :password, :string
@@ -11,7 +14,17 @@ defmodule LockedIn.Accounts.User do
     field :phone, :string
     field :current_password, :string, virtual: true, redact: true #todo: remove field
     field :confirmed_at, :utc_datetime #todo: remove field
-
+    has_many :posts, Post
+    has_many :likes, Like
+    has_many :liked_posts, through: [:likes, :post]
+    many_to_many :connections,
+      User,
+      join_through: Connection,
+      join_keys: [requester_id: :id, requestee_id: :id]
+    many_to_many :reverse_connections,
+      User,
+      join_through: Connection,
+      join_keys: [requestee_id: :id, requester_id: :id]
     timestamps(type: :utc_datetime)
   end
 
@@ -67,14 +80,9 @@ defmodule LockedIn.Accounts.User do
 
   defp hash_password(changeset) do
     password = get_change(changeset, :password)
-    hashed_password = Bcrypt.hash_pwd_salt(password)
-    IO.inspect(password)
-    IO.inspect(hashed_password)
     changeset
     |> validate_length(:password, max: 72, count: :bytes)
-    |> put_change(:password, hashed_password)
-    # |> get_change(:password)
-    # |> IO.inspect()
+    |> put_change(:password, Bcrypt.hash_pwd_salt(password))
   end
 
   defp maybe_hash_password(changeset, opts) do

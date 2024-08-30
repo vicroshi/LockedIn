@@ -5,6 +5,7 @@ defmodule LockedInWeb.UserAuth do
   import Phoenix.Controller
 
   alias LockedIn.Accounts
+
   # Make the remember me cookie valid for 60 days.
   # If you want bump or reduce this value, also change
   # the token expiry itself in UserToken.
@@ -109,6 +110,20 @@ defmodule LockedInWeb.UserAuth do
     assign(conn, :current_user, user)
   end
 
+  def authorize(conn,_opts) do
+    user = conn.assigns[:current_user]
+    user_id =  conn.params["user_id"] || conn.params["id"]
+    # IO.inspect(user_id)
+    # IO.inspect(user.id)
+    if is_nil(user_id) || String.to_integer(user_id) == user.id do
+      conn
+    else
+      conn
+      |> send_resp(:unauthorized, "No access for you")
+      |> halt()
+    end
+  end
+
   defp ensure_user_token(conn) do
     if token = get_session(conn, :user_token) do
       {token, conn}
@@ -122,7 +137,6 @@ defmodule LockedInWeb.UserAuth do
       end
     end
   end
-
   @doc """
   Handles mounting and authenticating the current_user in LiveViews.
 
@@ -219,9 +233,10 @@ defmodule LockedInWeb.UserAuth do
       conn
     else
       conn
-      |> put_flash(:error, "You must log in to access this page.")
-      |> maybe_store_return_to()
-      |> redirect(to: ~p"/users/log_in")
+      # |> put_flash(:error, "You must log in to access this page.")
+      # |> maybe_store_return_to()
+      # |> redirect(to: ~p"/users/log_in")
+      |> send_resp(:forbidden, "You must log in to access this page.")
       |> halt()
     end
   end

@@ -4,10 +4,11 @@ defmodule LockedIn.Posts do
   """
 
   import Ecto.Query, warn: false
+  alias Flop.CustomTypes.Like
   alias LockedIn.Repo
 
   alias LockedIn.Posts.Post
-
+  alias LockedIn.Posts.Like
   @doc """
   Returns the list of posts.
 
@@ -19,6 +20,10 @@ defmodule LockedIn.Posts do
   """
   def list_posts do
     Repo.all(Post)
+  end
+
+  def list_posts_by_user(user_id) do
+    Repo.all(from(p in Post, where: p.user_id == ^user_id))
   end
 
   @doc """
@@ -36,7 +41,9 @@ defmodule LockedIn.Posts do
 
   """
   def get_post!(id), do: Repo.get!(Post, id)
-
+  def get_post_by_user!(user_id) do
+    Repo.get_by(Post, user_id: user_id)
+  end
   @doc """
   Creates a post.
 
@@ -101,4 +108,17 @@ defmodule LockedIn.Posts do
   def change_post(%Post{} = post, attrs \\ %{}) do
     Post.changeset(post, attrs)
   end
+
+  def like_post(%Post{} = post, user_id) do
+    post
+    |> Ecto.build_assoc(:likes, user_id: user_id)
+    |> Like.changeset()
+    |> Repo.insert()
+  end
+
+  def unlike_post(post_id, user_id) do
+    query = from(l in Like, where: l.post_id == ^post_id and l.user_id == ^user_id)
+    Repo.delete_all(query)
+  end
+
 end
