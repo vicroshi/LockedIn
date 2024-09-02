@@ -14,17 +14,25 @@ defmodule LockedIn.Accounts.User do
     field :phone, :string
     field :current_password, :string, virtual: true, redact: true #todo: remove field
     field :confirmed_at, :utc_datetime #todo: remove field
-    has_many :posts, Post
-    has_many :likes, Like
-    has_many :liked_posts, through: [:likes, :post]
     many_to_many :connections,
       User,
       join_through: Connection,
-      join_keys: [requester_id: :id, requestee_id: :id]
+      join_keys: [requester_id: :id, requestee_id: :id],
+      join_where: [has_accepted: true]
     many_to_many :reverse_connections,
       User,
       join_through: Connection,
-      join_keys: [requestee_id: :id, requester_id: :id]
+      join_keys: [requestee_id: :id, requester_id: :id],
+      join_where: [has_accepted: true]
+    has_many :posts, Post
+    has_many :likes, Like
+    has_many :liked_posts, through: [:likes, :post]
+    has_many :connection_posts, through: [:connections, :posts]
+    has_many :connection_liked_posts, through: [:connections, :liked_posts]
+    has_many :reverse_connection_posts, through: [:reverse_connections, :posts]
+    has_many :reverse_connection_liked_posts, through: [:reverse_connections, :liked_posts]
+
+    # has_many :feed_posts, through: [connections]
     timestamps(type: :utc_datetime)
   end
 

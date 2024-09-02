@@ -8,7 +8,10 @@ defmodule LockedIn.Accounts.Connection do
     # field :requestee_id, :id, primary_key: true
     belongs_to :requester, LockedIn.Accounts.User, primary_key: true
     belongs_to :requestee, LockedIn.Accounts.User, primary_key: true
-
+    # has_many :posts, through: [:requester, :posts]
+    # has_many :liked_posts, through: [:requester, :liked_posts]
+    # has_many :reverse_posts, through: [:requestee, :posts]
+    # has_many :reverse_liked_posts, through: [:requestee, :liked_posts]
     timestamps(type: :utc_datetime)
   end
 

@@ -7,9 +7,95 @@ defmodule LockedIn.Accounts do
   alias LockedIn.Repo
 
   alias LockedIn.Accounts.{User, UserToken, UserNotifier,Connection}
-
+  alias LockedIn.Posts.{Post, Like}
   ## Database getters
 
+  def get_feed(user_id) do
+    user = get_user!(user_id)
+    # posts = Ecto.assoc(user,:posts) |> Repo.all() |> IO.inspect(label: "posts")
+    # liked_posts = Ecto.assoc(user,:liked_posts) |> Repo.all() |> IO.inspect(label: "liked_posts")
+    # connection_posts = Ecto.assoc(user,:connection_posts) |> Repo.all() |> IO.inspect(label: "connection_posts")
+    # connection_liked_posts = Ecto.assoc(user,:connection_liked_posts) |> Repo.all() |> IO.inspect(label: "connection_liked_posts")
+    # reverse_connection_posts = Ecto.assoc(user,:reverse_connection_posts) |> Repo.all() |> IO.inspect(label: "reverse_connection_posts")
+    # reverse_connection_liked_posts = Ecto.assoc(user,:reverse_connection_liked_posts) |> Repo.all() |> IO.inspect(label: "reverse_connection_liked_posts", syntax_colors: [string: :blue, atom: :red])    # |> Ecto.assoc(:connection_posts)
+    # Repo.preload(user,[:posts, :connection_posts, :reverse_connection_posts, :connection_liked_posts, :reverse_connection_liked_posts])
+    # Repo.preload(user,[:posts])
+    # Repo.preload(user,[:liked_posts])
+    # Repo.preload(user,[:connection_posts])
+    # Repo.preload(user,[:reverse_connection_posts])
+    # Repo.preload(user,[:connection_liked_posts])
+    # Repo.preload(user,[:reverse_connection_liked_posts])
+    # |>
+    # IO.inspect(label: "user")
+    # Enum.uniq(user.posts ++ user.connection_posts ++ user.reverse_connection_posts ++ user.connection_liked_posts ++ user.reverse_connection_posts ++ user.reverse_connection_liked_posts) |>
+    # Enum.sort_by(& &1.posted_at, &>=/2)
+    []
+    user_posts_query = from p in Post, where: p.user_id == ^user_id
+
+    user_liked_posts_query =
+      from p in Post,
+        join: l in Like,
+        on: l.post_id == p.id,
+        where: l.user_id == ^user_id
+      # end
+    connection_posts_query =
+      from p in Post,
+        join: c in Connection,
+        on: c.requestee_id == p.user_id,
+        where: c.requester_id == ^user_id and c.has_accepted == true
+
+    connection_liked_posts_query =
+      from p in Post,
+        join: l in Like,
+        on: l.post_id == p.id,
+        join: c in Connection,
+        on: c.requestee_id == l.user_id,
+        where: c.requester_id == ^user_id  and c.has_accepted == true
+
+    reverse_connection_posts_query =
+      from p in Post,
+        join: c in Connection,
+        on: c.requester_id == p.user_id,
+        where: c.requestee_id == ^user_id and c.has_accepted == true
+
+    reverse_connection_liked_posts_query =
+      from p in Post,
+        join: l in Like,
+        on: l.post_id == p.id,
+        join: c in Connection,
+        on: c.requester_id == l.user_id,
+        where: c.requestee_id == ^user_id and c.has_accepted == true
+
+    feed_query =
+      user_posts_query
+      |> union(^user_liked_posts_query)
+      |> union(^connection_posts_query)
+      |> union(^connection_liked_posts_query)
+      |> union(^reverse_connection_posts_query)
+      |> union(^reverse_connection_liked_posts_query)
+
+    # feed_query =
+      # Ecto.assoc(user, :posts)
+      # |> union(^Ecto.assoc(user, :liked_posts))
+      # |> union(^Ecto.assoc(user, :connection_posts))
+      # |> union(^Ecto.assoc(user, :connection_liked_posts))
+      # |> union(^Ecto.assoc(user, :reverse_connection_posts))
+      # |> union(^Ecto.assoc(user, :reverse_connection_liked_posts))
+    final_query = from p in subquery(feed_query),
+      order_by: [desc: p.posted_at]
+      # limit: ^limit,
+      # offset: ^offset,
+      # preload: [:user, :likes]
+    Repo.all(final_query)
+    # |> IO.inspect(label: "feed_query")
+    # IO.inspect(Ecto.assoc(user, :connection_liked_posts) |> where([p,l,c], c.has_accepted == true))
+    Ecto.Adapters.SQL.to_sql(:all,Repo,IO.inspect(Ecto.assoc(user, :connection_liked_posts)))
+    |>IO.inspect()
+    # IO.inspect(connection_liked_posts_query )
+    Ecto.Adapters.SQL.to_sql(:all,Repo,IO.inspect(connection_liked_posts_query))
+    |>IO.inspect()
+    []
+  end
   @doc """
   Gets a user by email.
 

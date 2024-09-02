@@ -21,6 +21,7 @@ defmodule LockedInWeb.PostController do
   def create(conn, %{"post" => post_params, "user_id" => user_id}, _post) do
     # with {:ok, %Post{} = post} <- Posts.create_post(post_params) do
     with {:ok, %Post{} = post} <- Posts.create_post(Map.put(post_params,"user_id",user_id)) do
+      IO.inspect(conn)
       conn
       |> put_status(:created)
       |> put_resp_header("location", ~p"/api/users/#{user_id}/posts/#{post}")

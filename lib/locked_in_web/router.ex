@@ -16,6 +16,8 @@ defmodule LockedInWeb.Router do
   pipeline :api do
     plug :accepts, ["json"]
     plug :fetch_session
+    # plug :protect_from_forgery
+    # plug Plug.CSRFProtection
   end
 
   pipeline :authenticted do
@@ -45,10 +47,12 @@ defmodule LockedInWeb.Router do
     patch "/connect/:requester_id", ConnectionController, :accept
     delete "/connect/:id", ConnectionController, :delete
     get "/users/:user_id/liked_posts", UserController, :liked_posts
+    get "/feed", UserController, :feed
     pipe_through :authorized
     delete "/like/:post_id", PostController, :unlike
     post "/like/:post_id", PostController, :like
-    resources "/users", UserController, except: [:new, :create, :edit], param: "user_id" do
+    resources "/users", UserController, except: [:new, :create, :edit], param: "user_id"
+    scope "/users/:user_id" do
       resources "/posts", PostController, except: [:new, :show, :edit], param: "post_id" do
       end
     end
