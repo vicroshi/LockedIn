@@ -39,14 +39,16 @@ defmodule LockedInWeb.UserJSON do
     # Map.from_struct(user)
   # end
 
-  def profile(%User{} = user) do
+  def profile(%{user: user}) do
+    IO.inspect(user.skills)
     %{
       id: user.id,
       firstname: user.firstname,
       lastname: user.lastname,
       phone: user.phone,
       education: user.education,
-      experience: user.experience
+      experience: user.experience,
+      skills: for(skill <- user.skills, do: %{"id" => skill.id, "name" => skill.name})
     }
   end
 end

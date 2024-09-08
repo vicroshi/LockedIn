@@ -4,14 +4,17 @@ defmodule LockedIn.Accounts do
   """
 
   import Ecto.Query, warn: false
+  alias LockedIn.Accounts.UserSkill
+  alias Ecto.Changeset
   alias LockedIn.Repo
 
   alias LockedIn.Accounts.{User, UserToken, UserNotifier,Connection}
   alias LockedIn.Posts.{Post, Like}
   ## Database getters
 
-  def get_feed(user_id) do
-    user = get_user!(user_id)
+  def get_feed(user) do
+    user_id = user.id
+    # user = get_user!(user_id)
     # posts = Ecto.assoc(user,:posts) |> Repo.all() |> IO.inspect(label: "posts")
     # liked_posts = Ecto.assoc(user,:liked_posts) |> Repo.all() |> IO.inspect(label: "liked_posts")
     # connection_posts = Ecto.assoc(user,:connection_posts) |> Repo.all() |> IO.inspect(label: "connection_posts")
@@ -87,14 +90,15 @@ defmodule LockedIn.Accounts do
       # offset: ^offset,
       # preload: [:user, :likes]
     Repo.all(final_query)
+    |> IO.inspect(label: "feed_query")
     # |> IO.inspect(label: "feed_query")
     # IO.inspect(Ecto.assoc(user, :connection_liked_posts) |> where([p,l,c], c.has_accepted == true))
-    Ecto.Adapters.SQL.to_sql(:all,Repo,IO.inspect(Ecto.assoc(user, :connection_liked_posts)))
-    |>IO.inspect()
+    # Ecto.Adapters.SQL.to_sql(:all,Repo,IO.inspect(Ecto.assoc(user, :connection_liked_posts)))
+    # |>IO.inspect()
     # IO.inspect(connection_liked_posts_query )
-    Ecto.Adapters.SQL.to_sql(:all,Repo,IO.inspect(connection_liked_posts_query))
-    |>IO.inspect()
-    []
+    # Ecto.Adapters.SQL.to_sql(:all,Repo,IO.inspect(connection_liked_posts_query))
+    # |>IO.inspect()
+    # []
   end
   @doc """
   Gets a user by email.
@@ -614,4 +618,15 @@ defmodule LockedIn.Accounts do
     # skills = user |> Ecto.assoc(:skills) |> Repo.all()
     # connection = get_connection()
   end
+
+  def update_profile(user, attrs) do
+    changeset = user
+    |> Repo.preload(:skills)
+    |> Changeset.cast(attrs, [])
+    |> Changeset.cast_assoc(:skills)
+    # |> UserSkill.changeset(attrs)
+    IO.inspect(changeset)
+    Repo.update(changeset)
+  end
+
 end

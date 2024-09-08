@@ -36,6 +36,16 @@ defmodule LockedInWeb.UserController do
     render(conn, :show, user: user)
   end
 
+  def update(conn, %{"skills" => skills, "experience" => experience, "education" => education} = profile_params) do
+    IO.inspect(profile_params)
+    case Accounts.update_profile(conn.assigns.current_user, profile_params) do
+      {:ok, user} ->
+        render(conn, :profile, user: user)
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:error, changeset}
+    end
+  end
+
   def update(conn, %{"id" => id, "user" => user_params}) do
     user = Accounts.get_user!(id)
 
@@ -63,7 +73,7 @@ defmodule LockedInWeb.UserController do
 
   def feed(conn, _params) do
     user = conn.assigns.current_user
-    feed = Accounts.get_feed(user.id)
+    feed = Accounts.get_feed(user)
     conn
     |> put_view(LockedInWeb.PostJSON)
     |> render(:index, posts: feed)

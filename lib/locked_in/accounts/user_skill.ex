@@ -13,6 +13,10 @@ defmodule LockedIn.Accounts.UserSkill do
   @doc false
   def changeset(user_skill, attrs) do
     user_skill
-    |> cast(attrs, [:public])
+    |> cast(attrs, [:user_id, :skill_id,:public])
+  end
+  def user_skill_changeset(changeset,attrs) do
+    # %__MODULE__{}
+    # |> cast(attrs, [:public])
   end
 end
