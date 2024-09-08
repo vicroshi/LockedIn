@@ -524,6 +524,14 @@ defmodule LockedIn.Accounts do
       Repo.get_by(Connection, requester_id: requester_id, requestee_id: requestee_id)
   end
 
+  def get_connections(user) do
+    connections_query = user |> Ecto.assoc(:connections)
+    reverse_connections_query = user |> Ecto.assoc(:reverse_connections)
+    connections_query |> union(^reverse_connections_query) |> Repo.all()
+    |>
+    IO.inspect()
+  end
+
   @doc """
   Creates a connection.
 
@@ -598,5 +606,12 @@ defmodule LockedIn.Accounts do
   """
   def change_connection(%Connection{} = connection, attrs \\ %{}) do
     Connection.changeset(connection, attrs)
+  end
+
+  def get_profile(user_id) do
+    user = get_user!(user_id) |> with_assoc(:skills)
+    IO.inspect(user)
+    # skills = user |> Ecto.assoc(:skills) |> Repo.all()
+    # connection = get_connection()
   end
 end

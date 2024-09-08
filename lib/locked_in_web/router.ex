@@ -38,22 +38,29 @@ defmodule LockedInWeb.Router do
   # Other scopes may use custom stacks.
   scope "/api", LockedInWeb do
     pipe_through :api
+    get "/test/:user_id", UserController, :test
     post "/register", UserRegistrationController, :create
     post "/login", UserSessionController, :create
     delete "/logout", UserSessionController, :delete
     pipe_through :authenticted
-    get "/posts/:id", PostController, :show
+    get "/posts/:post_id", PostController, :show
     post "/connect/:requestee_id", ConnectionController, :request
     patch "/connect/:requester_id", ConnectionController, :accept
     delete "/connect/:id", ConnectionController, :delete
     get "/users/:user_id/liked_posts", UserController, :liked_posts
     get "/feed", UserController, :feed
+    get "/connections", ConnectionController, :index
+    get "/users/:user_id/profile", UserController, :profile
+    post "/posts", PostController, :create
     pipe_through :authorized
     delete "/like/:post_id", PostController, :unlike
     post "/like/:post_id", PostController, :like
     resources "/users", UserController, except: [:new, :create, :edit], param: "user_id"
     scope "/users/:user_id" do
-      resources "/posts", PostController, except: [:new, :show, :edit], param: "post_id" do
+      get "/profile", UserController, :profile
+      resources "/posts", PostController, except: [:new, :show, :edit], param: "post_id"
+      scope "/posts/:post_id" do
+          resources "/comments", CommentController, except: [:new, :edit], param: "comment_id"
       end
     end
   end

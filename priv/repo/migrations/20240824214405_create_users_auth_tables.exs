@@ -7,9 +7,9 @@ defmodule LockedIn.Repo.Migrations.CreateUsersAuthTables do
     create table(:users) do
       add :email, :citext, null: false
       add :password, :string, null: false
-      add :firstname, :string
-      add :lastname, :string
-      add :phone, :string
+      add :firstname, :string, null: false
+      add :lastname, :string, null: false
+      add :phone, :string, null: false
       add :confirmed_at, :utc_datetime
       timestamps(type: :utc_datetime)
     end

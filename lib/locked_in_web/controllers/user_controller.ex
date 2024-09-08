@@ -69,4 +69,14 @@ defmodule LockedInWeb.UserController do
     |> render(:index, posts: feed)
   end
 
+  def profile(conn, %{"user_id" => user_id}) do
+    user = Accounts.get_profile(user_id)
+    render(conn, :profile, user: user)
+  end
+
+  def test(conn, %{"user_id" => user_id}) do
+    user = Accounts.get_user!(user_id)
+    render(conn, :test, user: user)
+  end
+
 end

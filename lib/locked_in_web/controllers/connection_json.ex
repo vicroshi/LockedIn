@@ -19,7 +19,7 @@ defmodule LockedInWeb.ConnectionJSON do
     %{
       requester_id: connection.requester_id,
       requestee_id: connection.requestee_id,
-      has_accepted: connection.has_accepted
+      # has_accepted: connection.has_accepted
     }
   end
 end

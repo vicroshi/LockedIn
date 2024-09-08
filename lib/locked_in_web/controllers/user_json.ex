@@ -34,4 +34,19 @@ defmodule LockedInWeb.UserJSON do
       phone: user.phone
     }
   end
+
+  # def test(%{user: user}) do
+    # Map.from_struct(user)
+  # end
+
+  def profile(%User{} = user) do
+    %{
+      id: user.id,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      phone: user.phone,
+      education: user.education,
+      experience: user.experience
+    }
+  end
 end

@@ -24,14 +24,19 @@ defmodule LockedIn.Accounts.User do
       join_through: Connection,
       join_keys: [requestee_id: :id, requester_id: :id],
       join_where: [has_accepted: true]
+    many_to_many :skills, LockedIn.Skills.Skill, join_through: LockedIn.Accounts.UserSkill
+    # many_to_many :public_skills, LockedIn.Skills.Skill, join_through: LockedIn.Accounts.UserSkill, join_where: [public: true]
+    has_many :applications, LockedIn.Jobs.JobApplication, foreign_key: :applicant_id
     has_many :posts, Post
+    has_many :comments, LockedIn.Posts.Comment
     has_many :likes, Like
     has_many :liked_posts, through: [:likes, :post]
     has_many :connection_posts, through: [:connections, :posts]
     has_many :connection_liked_posts, through: [:connections, :liked_posts]
     has_many :reverse_connection_posts, through: [:reverse_connections, :posts]
     has_many :reverse_connection_liked_posts, through: [:reverse_connections, :liked_posts]
-
+    embeds_many :education, LockedIn.Accounts.UserEducation
+    embeds_many :experience, LockedIn.Accounts.UserExperience
     # has_many :feed_posts, through: [connections]
     timestamps(type: :utc_datetime)
   end
@@ -64,6 +69,8 @@ defmodule LockedIn.Accounts.User do
     |> cast(attrs, [:email, :password, :firstname, :lastname, :phone])
     |> validate_email(opts)
     |> validate_password(opts)
+    # |> validate_required([:firstname, :lastname, :phone])
+    # |> validate_
   end
 
   defp validate_email(changeset, opts) do

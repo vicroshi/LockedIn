@@ -6,4 +6,7 @@ defmodule LockedIn do
   Contexts are also responsible for managing your data, regardless
   if it comes from the database, an external API or others.
   """
+  def upload_dir do
+    Path.expand("./"<>Application.get_env(:locked_in, :upload_path))
+  end
 end

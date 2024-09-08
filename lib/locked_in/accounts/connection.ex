@@ -20,7 +20,21 @@ defmodule LockedIn.Accounts.Connection do
     conn
     |> cast(attrs, [:requester_id, :requestee_id])
     |> not_same()
+    # |> check_already_requested()
+    |> unique_constraint([:requester_id, :requestee_id], name: :connections_symmetric_constraint, message: "already requested")
+    # |> exclusion_constraint()
+    # |> reverse_unique_constraint()
+  end
+
+  def reverse_unique_constraint(changeset) do
+    # check if the requestee has a pending request to you
+    requester_id = get_field(changeset, :requester_id)
+    requestee_id = get_field(changeset, :requestee_id)
+    chst = changeset
+    |> put_change(:requester_id, requestee_id)
+    |> put_change(:requestee_id, requester_id)
     |> unique_constraint([:requester_id, :requestee_id], name: :connections_pkey, message: "already requested")
+    IO.inspect(chst.constraints)
   end
 
   def accept_changeset(conn) do

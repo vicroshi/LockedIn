@@ -14,7 +14,10 @@
 alias LockedIn.Repo
 alias LockedIn.Posts.Post
 alias LockedIn.Accounts.User
-
+alias LockedIn.Accounts.UserEducation
+alias LockedIn.Accounts.UserExperience
+alias LockedIn.Accounts.UserSkill
+alias LockedIn.Skills.Skill
 # Ensure the Repo is started
 {:ok, _} = Application.ensure_all_started(:locked_in)
 

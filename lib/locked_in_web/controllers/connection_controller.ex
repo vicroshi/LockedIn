@@ -5,10 +5,14 @@ defmodule LockedInWeb.ConnectionController do
   alias LockedIn.Accounts.Connection
 
   action_fallback LockedInWeb.FallbackController
-  plug :not_same, when: [:request, :accept, :delete]
+  plug :not_same when action in [:request, :accept, :delete]
+
   def index(conn, _params) do
-    connections = Accounts.list_connections()
-    render(conn, :index, connections: connections)
+    # connections = Accounts.list_connections()
+    connections = Accounts.get_connections(conn.assigns.current_user)
+    conn
+    |> put_view(json: LockedInWeb.UserJSON)
+    |> render(:index, users: connections)
   end
 
   def request(conn, %{"requestee_id" => requestee_id}) do

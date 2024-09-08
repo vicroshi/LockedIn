@@ -14,22 +14,21 @@ defmodule LockedInWeb.PostController do
   end
 
   def index(conn, _params) do
-    posts = Posts.list_posts()
+    posts = Posts.list_posts_by_user(conn.assigns.current_user.id)
     render(conn, :index, posts: posts)
   end
 
-  def create(conn, %{"post" => post_params, "user_id" => user_id}, _post) do
+  def create(conn, params, _post) do
     # with {:ok, %Post{} = post} <- Posts.create_post(post_params) do
-    with {:ok, %Post{} = post} <- Posts.create_post(Map.put(post_params,"user_id",user_id)) do
-      IO.inspect(conn)
+    with {:ok, %Post{} = post} <- Posts.create_post(Map.put(params,"user_id",conn.assigns.current_user.id)) do
+      # IO.inspect(conn)
       conn
       |> put_status(:created)
-      |> put_resp_header("location", ~p"/api/users/#{user_id}/posts/#{post}")
       |> render(:show, post: post)
     end
   end
 
-  def show(conn, %{"id" => id}, post) do
+  def show(conn, %{"post_id" => _id}, post) do
     # post = Posts.get_post!(id)
     render(conn, :show, post: post)
   end

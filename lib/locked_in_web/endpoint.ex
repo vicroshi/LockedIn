@@ -49,5 +49,8 @@ defmodule LockedInWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+  plug Plug.Static, at: "/uploads", from: LockedIn.upload_dir
   plug LockedInWeb.Router
+
+
 end
