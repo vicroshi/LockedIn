@@ -24,7 +24,7 @@ defmodule LockedIn.Accounts.User do
       join_through: Connection,
       join_keys: [requestee_id: :id, requester_id: :id],
       join_where: [has_accepted: true]
-    many_to_many :skills, LockedIn.Skills.Skill, join_through: LockedIn.Accounts.UserSkill
+    many_to_many :skills, LockedIn.Skills.Skill, join_through: LockedIn.Accounts.UserSkill, on_replace: :delete
     # many_to_many :public_skills, LockedIn.Skills.Skill, join_through: LockedIn.Accounts.UserSkill, join_where: [public: true]
     has_many :applications, LockedIn.Jobs.JobApplication, foreign_key: :applicant_id
     has_many :posts, Post

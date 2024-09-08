@@ -52,6 +52,8 @@ defmodule LockedInWeb.Router do
     get "/connections", ConnectionController, :index
     get "/users/:user_id/profile", UserController, :profile
     post "/posts", PostController, :create
+    patch "/users/profile", UserController, :update
+    get "/users/profile/:user_id", UserController, :profile
     pipe_through :authorized
     delete "/like/:post_id", PostController, :unlike
     post "/like/:post_id", PostController, :like
