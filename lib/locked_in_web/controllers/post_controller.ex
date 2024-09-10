@@ -9,8 +9,8 @@ defmodule LockedInWeb.PostController do
   plug :fetch_post when action in [:show, :update, :delete, :like, :unlike]
 
   def action(conn, _) do
-    post_id = conn.params["post_id"]
-    post = if post_id, do: Posts.get_post!(post_id), else: nil
+    # post_id = conn.params["post_id"]
+    post = conn.assigns.post
     args = [conn, conn.params, post]
     apply(__MODULE__, action_name(conn), args)
   end
