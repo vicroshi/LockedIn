@@ -85,10 +85,10 @@ defmodule LockedIn.Accounts do
       # |> union(^Ecto.assoc(user, :reverse_connection_posts))
       # |> union(^Ecto.assoc(user, :reverse_connection_liked_posts))
     final_query = from p in subquery(feed_query),
-      order_by: [desc: p.posted_at]
+      order_by: [desc: p.posted_at],
       # limit: ^limit,
       # offset: ^offset,
-      # preload: [:user, :likes]
+      preload: [:user, :likes]
     Repo.all(final_query)
     |> IO.inspect(label: "feed_query")
     # |> IO.inspect(label: "feed_query")
@@ -620,13 +620,26 @@ defmodule LockedIn.Accounts do
   end
 
   def update_profile(user, attrs) do
-    changeset = user
-    |> Repo.preload(:skills)
+    # update association skills
+    case user
+    |> Repo.preload([:skills])
     |> Changeset.cast(attrs, [])
     |> Changeset.cast_assoc(:skills)
-    # |> UserSkill.changeset(attrs)
-    IO.inspect(changeset)
-    Repo.update(changeset)
+    |> Changeset.cast_embed(:experience)
+    |> Repo.update()
+    do
+     {:ok, user} ->
+        # update join table association user_skills
+        user_skills = Enum.reduce(user.skills,[], fn skill,acc ->
+          [%{user_id: user.id, skill_id: skill.id, public: skill.public} | acc]
+        end)
+        IO.inspect(user_skills)
+        Changeset.change(user|>Repo.preload([:user_skills]))
+        |> Changeset.put_assoc(:user_skills, user_skills)
+        |> Repo.update()
+      {:error, changeset} ->
+        {:error, changeset}
+    end
   end
 
 end

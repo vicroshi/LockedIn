@@ -6,7 +6,7 @@ defmodule LockedIn.Posts do
   import Ecto.Query, warn: false
   alias Flop.CustomTypes.Like
   alias LockedIn.Repo
-
+  alias Ecto.Multi
   alias LockedIn.Posts.Post
   alias LockedIn.Posts.Like
   @doc """
@@ -40,9 +40,12 @@ defmodule LockedIn.Posts do
       ** (Ecto.NoResultsError)
 
   """
+  def with_assoc(post, assocs) do
+    Repo.preload(post, assocs)
+  end
   def get_post!(id), do: Repo.get!(Post, id)
-  def get_post_by_user!(user_id) do
-    Repo.get_by(Post, user_id: user_id)
+  def get_post_by_user!(post_id,user_id) do
+    Repo.get_by(Post, [id: post_id, user_id: user_id])
   end
   @doc """
   Creates a post.
@@ -186,10 +189,25 @@ defmodule LockedIn.Posts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_comment(attrs \\ %{}) do
-    %Comment{}
-    |> Comment.changeset(attrs)
-    |> Repo.insert()
+  def create_comment(post,user_id,attrs \\ %{}) do
+    # post
+    # |> Ecto.build_assoc(:comments, user_id: user_id)
+    # |> Comment.changeset(attrs)
+    # |> Repo.insert()
+    Multi.new()
+    |> Multi.insert(:comment, Ecto.build_assoc(post, :comments, user_id: user_id) |> Comment.changeset(attrs))
+    |> Multi.run(:notification, fn _repo, %{comment: comment} ->
+      comment
+      |> Ecto.build_assoc(:notification, %{comment_id: comment.id, sender_id: user_id, recipient_id: post.user_id, post_id: post.id, is_comment: true})
+      |> Repo.insert()
+      # Notification.create_notification(%{
+        # user_id: user_id,
+        # post_id: post.id,
+        # comment_id: comment.id,
+        # message: "A new comment has been created."
+      # })
+    end)
+    |> Repo.transaction()
   end
 
   @doc """

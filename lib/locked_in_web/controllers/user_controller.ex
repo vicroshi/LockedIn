@@ -31,12 +31,18 @@ defmodule LockedInWeb.UserController do
     #
   # end
 
-  def show(conn, %{"id" => id}) do
+
+
+  def show(conn, %{"user_id" => id}) do
     user = Accounts.get_user!(id)
     render(conn, :show, user: user)
   end
 
-  def update(conn, %{"skills" => skills, "experience" => experience, "education" => education} = profile_params) do
+  def show(conn, _) do
+    render(conn, :show, user: conn.assigns.current_user)
+  end
+
+  def update(conn, %{"skills" => _skills, "experience" => _experience, "education" => _education} = profile_params) do
     IO.inspect(profile_params)
     case Accounts.update_profile(conn.assigns.current_user, profile_params) do
       {:ok, user} ->
@@ -48,7 +54,6 @@ defmodule LockedInWeb.UserController do
 
   def update(conn, %{"id" => id, "user" => user_params}) do
     user = Accounts.get_user!(id)
-
     with {:ok, %User{} = user} <- Accounts.update_user(user, user_params) do
       render(conn, :show, user: user)
     end
