@@ -29,11 +29,11 @@ defmodule LockedInWeb.Router do
     plug :authorize
   end
 
-  scope "/", LockedInWeb do
-    pipe_through :browser
+  # scope "/", LockedInWeb do
+  #   pipe_through :browser
 
-    get "/", PageController, :home
-  end
+  #   get "/", PageController, :home
+  # end
 
   # Other scopes may use custom stacks.
   scope "/api", LockedInWeb do
@@ -43,6 +43,7 @@ defmodule LockedInWeb.Router do
     post "/login", UserSessionController, :create
     delete "/logout", UserSessionController, :delete
     pipe_through :authenticted
+    get "/me", UserController, :show
     get "/posts/:post_id", PostController, :show
     post "/connect/:requestee_id", ConnectionController, :request
     patch "/connect/:requester_id", ConnectionController, :accept
@@ -50,8 +51,11 @@ defmodule LockedInWeb.Router do
     get "/users/:user_id/liked_posts", UserController, :liked_posts
     get "/feed", UserController, :feed
     get "/connections", ConnectionController, :index
-    get "/users/:user_id/profile", UserController, :profile
-    post "/posts", PostController, :create
+    # get "/users/:user_id/profile", UserController, :profile
+    resources "/posts", PostController, except: [:new, :edit], param: "post_id"
+    scope "/posts/:post_id" do
+      resources "/comments", CommentController, only: [:create, :delete], param: "comment_id"
+    end
     patch "/users/profile", UserController, :update
     get "/users/profile/:user_id", UserController, :profile
     pipe_through :authorized
@@ -62,7 +66,7 @@ defmodule LockedInWeb.Router do
       get "/profile", UserController, :profile
       resources "/posts", PostController, except: [:new, :show, :edit], param: "post_id"
       scope "/posts/:post_id" do
-          resources "/comments", CommentController, except: [:new, :edit], param: "comment_id"
+          resources "/comments", CommentController, only: [:create, :delete], param: "comment_id"
       end
     end
   end
@@ -84,36 +88,36 @@ defmodule LockedInWeb.Router do
     end
   end
 
-  ## Authentication routes
+  # ## Authentication routes
 
-  scope "/", LockedInWeb do
-    pipe_through [:browser, :redirect_if_user_is_authenticated]
+  # scope "/", LockedInWeb do
+  #   pipe_through [:browser, :redirect_if_user_is_authenticated]
 
-    get "/users/register", UserRegistrationController, :new
-    post "/users/register", UserRegistrationController, :create
-    get "/users/log_in", UserSessionController, :new
-    post "/users/log_in", UserSessionController, :create
-    get "/users/reset_password", UserResetPasswordController, :new
-    post "/users/reset_password", UserResetPasswordController, :create
-    get "/users/reset_password/:token", UserResetPasswordController, :edit
-    put "/users/reset_password/:token", UserResetPasswordController, :update
-  end
+  #   get "/users/register", UserRegistrationController, :new
+  #   post "/users/register", UserRegistrationController, :create
+  #   get "/users/log_in", UserSessionController, :new
+  #   post "/users/log_in", UserSessionController, :create
+  #   get "/users/reset_password", UserResetPasswordController, :new
+  #   post "/users/reset_password", UserResetPasswordController, :create
+  #   get "/users/reset_password/:token", UserResetPasswordController, :edit
+  #   put "/users/reset_password/:token", UserResetPasswordController, :update
+  # end
 
-  scope "/", LockedInWeb do
-    pipe_through [:browser, :require_authenticated_user]
+  # scope "/", LockedInWeb do
+  #   pipe_through [:browser, :require_authenticated_user]
 
-    get "/users/settings", UserSettingsController, :edit
-    put "/users/settings", UserSettingsController, :update
-    get "/users/settings/confirm_email/:token", UserSettingsController, :confirm_email
-  end
+  #   get "/users/settings", UserSettingsController, :edit
+  #   put "/users/settings", UserSettingsController, :update
+  #   get "/users/settings/confirm_email/:token", UserSettingsController, :confirm_email
+  # end
 
-  scope "/", LockedInWeb do
-    pipe_through [:browser]
+  # scope "/", LockedInWeb do
+  #   pipe_through [:browser]
 
-    delete "/users/log_out", UserSessionController, :delete
-    get "/users/confirm", UserConfirmationController, :new
-    post "/users/confirm", UserConfirmationController, :create
-    get "/users/confirm/:token", UserConfirmationController, :edit
-    post "/users/confirm/:token", UserConfirmationController, :update
-  end
+  #   delete "/users/log_out", UserSessionController, :delete
+  #   get "/users/confirm", UserConfirmationController, :new
+  #   post "/users/confirm", UserConfirmationController, :create
+  #   get "/users/confirm/:token", UserConfirmationController, :edit
+  #   post "/users/confirm/:token", UserConfirmationController, :update
+  # end
 end

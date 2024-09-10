@@ -11,9 +11,12 @@ defmodule LockedIn.Accounts.UserSkill do
   end
 
   @doc false
-  def changeset(user_skill, attrs) do
-    user_skill
-    |> cast(attrs, [:user_id, :skill_id,:public])
+  def changeset(struct, attrs) do
+    IO.inspect(attrs)
+    struct
+    |> cast(attrs, [:user_id, :skill_id, :public])
+    |> validate_required([:user_id, :skill_id])
+
   end
   def user_skill_changeset(changeset,attrs) do
     # %__MODULE__{}

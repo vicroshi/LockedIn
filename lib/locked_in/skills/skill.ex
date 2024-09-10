@@ -4,14 +4,16 @@ defmodule LockedIn.Skills.Skill do
   @derive {Jason.Encoder, only: [:name, :id]}
   schema "skills" do
     field :name, :string
-
+    many_to_many :users, LockedIn.Accounts.User, join_through: "user_skills"
+    field :public , :boolean, default: false, virtual: true
     timestamps(type: :utc_datetime)
   end
 
   @doc false
   def changeset(skill, attrs) do
     skill
-    |> cast(attrs, [:name])
+    |> cast(attrs, [:name, :public])
+    |> unique_constraint(:name, name: :skills_name_index)
     |> validate_required([:name])
   end
 

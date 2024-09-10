@@ -1,4 +1,5 @@
 defmodule LockedInWeb.UserJSON do
+  alias Ecto.Query.Builder.Lock
   alias LockedIn.Accounts.User
 
   @doc """
@@ -35,19 +36,30 @@ defmodule LockedInWeb.UserJSON do
     }
   end
 
+  defp data(%LockedIn.Accounts.UserExperience{} = experience) do
+    %{
+      id: experience.id,
+      title: experience.title,
+      company: experience.company,
+      start_date: experience.start_date,
+      end_date: experience.end_date,
+      description: experience.description
+    }
+  end
+
   # def test(%{user: user}) do
     # Map.from_struct(user)
   # end
 
   def profile(%{user: user}) do
-    IO.inspect(user.skills)
+    # IO.inspect(user.skills)
     %{
       id: user.id,
       firstname: user.firstname,
       lastname: user.lastname,
       phone: user.phone,
-      education: user.education,
-      experience: user.experience,
+      education: for(education <- user.education, do: data(education)),
+      experience: for(experience <- user.experience, do: data(experience)),
       skills: for(skill <- user.skills, do: %{"id" => skill.id, "name" => skill.name})
     }
   end

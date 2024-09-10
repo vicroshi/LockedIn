@@ -24,9 +24,12 @@ defmodule LockedIn.Accounts.User do
       join_through: Connection,
       join_keys: [requestee_id: :id, requester_id: :id],
       join_where: [has_accepted: true]
+    # many_to_many :skills, LockedIn.Skills.Skill, join_through: LockedIn.Accounts.UserSkill, on_replace: :delete
+    has_many :user_skills, LockedIn.Accounts.UserSkill, on_replace: :delete
     many_to_many :skills, LockedIn.Skills.Skill, join_through: LockedIn.Accounts.UserSkill, on_replace: :delete
     # many_to_many :public_skills, LockedIn.Skills.Skill, join_through: LockedIn.Accounts.UserSkill, join_where: [public: true]
     has_many :applications, LockedIn.Jobs.JobApplication, foreign_key: :applicant_id
+    has_many :notifications, LockedIn.Posts.Notification, foreign_key: :recipient_id
     has_many :posts, Post
     has_many :comments, LockedIn.Posts.Comment
     has_many :likes, Like
@@ -35,8 +38,8 @@ defmodule LockedIn.Accounts.User do
     has_many :connection_liked_posts, through: [:connections, :liked_posts]
     has_many :reverse_connection_posts, through: [:reverse_connections, :posts]
     has_many :reverse_connection_liked_posts, through: [:reverse_connections, :liked_posts]
-    embeds_many :education, LockedIn.Accounts.UserEducation
-    embeds_many :experience, LockedIn.Accounts.UserExperience
+    embeds_many :education, LockedIn.Accounts.UserEducation, on_replace: :delete
+    embeds_many :experience, LockedIn.Accounts.UserExperience, on_replace: :delete
     # has_many :feed_posts, through: [connections]
     timestamps(type: :utc_datetime)
   end

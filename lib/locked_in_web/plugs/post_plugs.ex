@@ -1,6 +1,5 @@
 defmodule LockedInWeb.Plugs.PostPlugs do
   import Plug.Conn
-  alias DialyxirVendored.Formatter.IgnoreFile
   alias LockedIn.Posts
   def fetch_post(conn, _) do
     post_id = conn.params["post_id"]

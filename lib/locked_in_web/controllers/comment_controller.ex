@@ -5,6 +5,15 @@ defmodule LockedInWeb.CommentController do
   alias LockedIn.Posts.Comment
 
   action_fallback LockedInWeb.FallbackController
+  import LockedInWeb.Plugs.PostPlugs
+  plug :fetch_post when action in [:create, :delete]
+
+
+  # def action(conn, _) do
+    # post_id = conn.params["post_id"]
+    # args = [conn, conn.params, post]
+    # apply(__MODULE__, action_name(conn), args)
+  # end
 
   def index(conn, _params) do
     comments = Posts.list_comments()
@@ -12,7 +21,7 @@ defmodule LockedInWeb.CommentController do
   end
 
   def create(conn, %{"comment" => comment_params}) do
-    with {:ok, %Comment{} = comment} <- Posts.create_comment(comment_params) do
+    with {:ok, %Comment{} = comment} <- Posts.create_comment(conn.assigns.post,conn.assigns.current_user.id,comment_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", ~p"/api/comments/#{comment}")
@@ -33,7 +42,7 @@ defmodule LockedInWeb.CommentController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
+  def delete(conn, %{"comment_id" => id}) do
     comment = Posts.get_comment!(id)
 
     with {:ok, %Comment{}} <- Posts.delete_comment(comment) do
