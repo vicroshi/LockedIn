@@ -20,6 +20,8 @@ defmodule LockedInWeb.PostJSON do
       id: post.id,
       content: post.content,
       user_id: post.user_id,
+      user_fname: post.user.firstname,
+      user_lname: post.user.lastname,
       posted_at: post.posted_at,
       media: post.media_paths
     }

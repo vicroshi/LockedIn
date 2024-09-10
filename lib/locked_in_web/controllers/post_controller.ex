@@ -5,6 +5,8 @@ defmodule LockedInWeb.PostController do
   alias LockedIn.Posts.Post
   alias LockedIn.Posts.Like
   action_fallback LockedInWeb.FallbackController
+  import LockedInWeb.Plugs.PostPlugs
+  plug :fetch_post when action in [:show, :update, :delete, :like, :unlike]
 
   def action(conn, _) do
     post_id = conn.params["post_id"]
@@ -62,5 +64,7 @@ defmodule LockedInWeb.PostController do
       {0,nil} -> json(conn, %{errors: "already_unliked"})
     end
   end
+
+
 
 end
