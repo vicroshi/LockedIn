@@ -26,7 +26,7 @@ defmodule LockedInWeb.PostController do
       # IO.inspect(conn)
       conn
       |> put_status(:created)
-      |> render(:show, post: post)
+      |> render(:show, post: post |> Posts.with_assoc([:user]))
     end
   end
 
