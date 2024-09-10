@@ -52,7 +52,7 @@ defmodule LockedInWeb.PostController do
   end
 
   def like(conn, _params) do
-    with {:ok,%Like{}} <- Posts.like_post(post, conn.assigns.current_user.id) do
+    with {:ok,%Like{}} <- Posts.like_post(conn.assigns.post, conn.assigns.current_user.id) do
       render(conn, :show, post: conn.assigns.post)
     end
   end
