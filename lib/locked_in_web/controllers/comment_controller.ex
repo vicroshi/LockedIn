@@ -8,12 +8,12 @@ defmodule LockedInWeb.CommentController do
   import LockedInWeb.Plugs.PostPlugs
   import LockedIn.Helpers
 
-  plug :fetch_post when action in [:create, :delete]
+  plug :fetch_post when action in [:create, :delete, :index]
 
 
   def index(conn, _params) do
-    comments = conn.assigns.post |> with_assoc(:comments)
-    render(conn, :index, comments: comments |> with_assoc(:user))
+    post = conn.assigns.post |> with_assoc(:comments)
+    render(conn, :index, comments: post.comments |> with_assoc(:user))
   end
 
   def create(conn, %{"comment" => comment_params}) do
