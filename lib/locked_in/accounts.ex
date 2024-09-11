@@ -612,7 +612,7 @@ defmodule LockedIn.Accounts do
   end
 
   def get_profile(user_id) do
-    user = get_user!(user_id) |> preload([:skills])
+    user = get_user!(user_id) |> Repo.preload([:skills])
     IO.inspect(user)
     # skills = user |> Ecto.assoc(:skills) |> Repo.all()
     # connection = get_connection()
