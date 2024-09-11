@@ -3,12 +3,11 @@ defmodule LockedIn.Posts.Notification do
   import Ecto.Changeset
 
   schema "notifications" do
-    field :is_comment, :boolean, default: false
     field :is_read, :boolean, default: false
     belongs_to :sender, LockedIn.Accounts.User
     belongs_to :recipient, LockedIn.Accounts.User
     belongs_to :post, LockedIn.Posts.Post
-    has_one :comment, {"comment_notifications", LockedIn.Posts.Comment}
+    belongs_to :comment, LockedIn.Posts.Comment
     timestamps(type: :utc_datetime)
   end
 

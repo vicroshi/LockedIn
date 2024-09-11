@@ -134,10 +134,16 @@ defmodule LockedIn.Posts do
   end
 
   def like_post(%Post{} = post, user_id) do
-    post
-    |> Ecto.build_assoc(:likes, user_id: user_id)
-    |> Like.changeset()
-    |> Repo.insert()
+    Multi.new()
+    |> Multi.insert(:like, post |> Ecto.build_assoc(:likes, user_id: user_id))
+    |> Multi.insert(:notification, post |> Ecto.build_assoc(:notification, %{sender_id: user_id, recipient_id: post.user_id, post_id: post.id, comment_id: nil}))
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{like: like}} ->
+        {:ok, like}
+      {:error, _} ->
+        {:error, %Ecto.Changeset{}}
+    end
   end
 
   def unlike_post(post_id, user_id) do
@@ -208,6 +214,13 @@ defmodule LockedIn.Posts do
       # })
     end)
     |> Repo.transaction()
+    |> case do
+      {:ok, %{comment: comment}} ->
+        IO.inspect(comment)
+        {:ok,comment}
+      {:error, _} ->
+        {:error, %Ecto.Changeset{}}
+    end
   end
 
   @doc """
