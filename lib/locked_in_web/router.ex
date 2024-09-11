@@ -54,8 +54,9 @@ defmodule LockedInWeb.Router do
     # get "/users/:user_id/profile", UserController, :profile
     resources "/posts", PostController, except: [:new, :edit], param: "post_id"
     scope "/posts/:post_id" do
-      resources "/comments", CommentController, only: [:create, :delete], param: "comment_id"
+      resources "/comments", CommentController, only: [:create, :show, :index , :delete], param: "comment_id"
     end
+    get "/notifications", UserController, :notifications
     patch "/users/profile", UserController, :update
     get "/users/profile/:user_id", UserController, :profile
     pipe_through :authorized

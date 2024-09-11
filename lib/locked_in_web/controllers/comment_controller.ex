@@ -16,21 +16,21 @@ defmodule LockedInWeb.CommentController do
   # end
 
   def index(conn, _params) do
-    comments = Posts.list_comments()
+    comments = Posts.list_comments() |> Posts.with_assoc(:user)
     render(conn, :index, comments: comments)
   end
 
   def create(conn, %{"comment" => comment_params}) do
-    with {:ok, %Comment{} = comment} <- Posts.create_comment(conn.assigns.post,conn.assigns.current_user.id,comment_params) do
+    with {:ok, %Comment{} = comment} <- Posts.create_comment(conn.assigns.post,conn.assigns.current_user.id,comment_params)  do
       conn
       |> put_status(:created)
-      |> put_resp_header("location", ~p"/api/comments/#{comment}")
-      |> render(:show, comment: comment)
+      # |> put_resp_header("location", ~p"/api/comments/#{comment}")
+      |> render(:show, comment: comment|> Posts.with_assoc(:user))
     end
   end
 
   def show(conn, %{"id" => id}) do
-    comment = Posts.get_comment!(id)
+    comment = Posts.get_comment!(id) |> Posts.with_assoc(:user)
     render(conn, :show, comment: comment)
   end
 

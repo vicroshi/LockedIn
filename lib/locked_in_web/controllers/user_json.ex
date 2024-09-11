@@ -47,6 +47,16 @@ defmodule LockedInWeb.UserJSON do
     }
   end
 
+  defp data(%LockedIn.Posts.Notification{} = notification) do
+    %{
+      id: notification.id,
+      sender_id: notification.sender_id,
+      recipient_id: notification.recipient_id,
+      post_id: notification.post_id,
+      comment_id: notification.comment_id
+    }
+  end
+
   # def test(%{user: user}) do
     # Map.from_struct(user)
   # end
@@ -63,4 +73,9 @@ defmodule LockedInWeb.UserJSON do
       skills: for(skill <- user.skills, do: %{"id" => skill.id, "name" => skill.name})
     }
   end
+
+  def notifications(%{notifs: notifications}) do
+    %{data: for(notification <- notifications, do: data(notification))}
+  end
+
 end

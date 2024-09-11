@@ -40,8 +40,8 @@ defmodule LockedIn.Posts do
       ** (Ecto.NoResultsError)
 
   """
-  def with_assoc(post, assocs) do
-    Repo.preload(post, assocs)
+  def with_assoc(struct, assocs) do
+    Repo.preload(struct, assocs)
   end
   def get_post!(id), do: Repo.get!(Post, id)
   def get_post_by_user!(post_id,user_id) do

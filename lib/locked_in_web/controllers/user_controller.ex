@@ -31,7 +31,10 @@ defmodule LockedInWeb.UserController do
     #
   # end
 
-
+  def notifications(conn, _params) do
+    user = conn.assigns.current_user |> Accounts.with_assoc([:notifications])
+    render(conn, :notifications, notifs: user.notifications)
+  end
 
   def show(conn, %{"user_id" => id}) do
     user = Accounts.get_user!(id)

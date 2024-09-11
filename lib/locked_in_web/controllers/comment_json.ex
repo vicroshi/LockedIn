@@ -18,7 +18,10 @@ defmodule LockedInWeb.CommentJSON do
   defp data(%Comment{} = comment) do
     %{
       id: comment.id,
-      content: comment.content
+      content: comment.content,
+      user_id: comment.user_id,
+      user_fname: comment.user.firstname,
+      user_lname: comment.user.lastname,
     }
   end
 end
