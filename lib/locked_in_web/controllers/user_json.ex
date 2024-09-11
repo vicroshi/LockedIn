@@ -51,9 +51,12 @@ defmodule LockedInWeb.UserJSON do
     %{
       id: notification.id,
       sender_id: notification.sender_id,
+      sender_fname: notification.sender.firstname,
+      sender_lname: notification.sender.lastname,
       recipient_id: notification.recipient_id,
       post_id: notification.post_id,
-      comment_id: notification.comment_id
+      comment_id: notification.comment_id,
+      created_at: notification.inserted_at
     }
   end
 

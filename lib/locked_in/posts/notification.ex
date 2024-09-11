@@ -14,7 +14,16 @@ defmodule LockedIn.Posts.Notification do
   @doc false
   def changeset(notification, attrs) do
     notification
-    |> cast(attrs, [:is_comment])
-    |> validate_required([:is_comment])
+    |> validate_required([:sender_id, :recipient_id, :post_id])
+    |> not_same_user()
+  end
+  def not_same_user(changeset) do
+    sender_id = get_field(changeset, :sender_id)
+    recipient_id = get_field(changeset, :recipient_id)
+    if sender_id == recipient_id do
+      add_error(changeset, :recipient_id, "can't be the same as sender")
+    else
+      changeset
+    end
   end
 end

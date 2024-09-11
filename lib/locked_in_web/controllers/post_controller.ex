@@ -6,6 +6,7 @@ defmodule LockedInWeb.PostController do
   alias LockedIn.Posts.Like
   action_fallback LockedInWeb.FallbackController
   import LockedInWeb.Plugs.PostPlugs
+  import LockedIn.Helpers
   plug :fetch_post when action in [:show, :update, :delete, :like, :unlike]
 
   # def action(conn, _) do
@@ -26,7 +27,7 @@ defmodule LockedInWeb.PostController do
       # IO.inspect(conn)
       conn
       |> put_status(:created)
-      |> render(:show, post: post |> Posts.with_assoc([:user]))
+      |> render(:show, post: post |> with_assoc([:user]))
     end
   end
 

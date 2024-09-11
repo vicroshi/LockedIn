@@ -3,7 +3,7 @@ defmodule LockedInWeb.UserController do
 
   alias LockedIn.Accounts
   alias LockedIn.Accounts.User
-  alias LockedIn.Accounts
+  import LockedIn.Helpers
   action_fallback LockedInWeb.FallbackController
   def index(conn, _params) do
     users = Accounts.list_users()
@@ -32,8 +32,8 @@ defmodule LockedInWeb.UserController do
   # end
 
   def notifications(conn, _params) do
-    user = conn.assigns.current_user |> Accounts.with_assoc([:notifications])
-    render(conn, :notifications, notifs: user.notifications)
+    user = conn.assigns.current_user |> with_assoc([:notifications])
+    render(conn, :notifications, notifs: user.notifications |> with_assoc([:sender]))
   end
 
   def show(conn, %{"user_id" => id}) do
@@ -72,7 +72,7 @@ defmodule LockedInWeb.UserController do
 
   def liked_posts(conn, %{"user_id" => user_id}) do
     # liked_posts = Accounts.get_user_with_liked_posts(user_id)
-    user = Accounts.get_user!(user_id) |> Accounts.with_assoc([:liked_posts])
+    user = Accounts.get_user!(user_id) |> with_assoc([:liked_posts])
     liked_posts = user.liked_posts
     conn
     |> put_view(LockedInWeb.PostJSON)

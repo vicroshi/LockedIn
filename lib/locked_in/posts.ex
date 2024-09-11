@@ -40,9 +40,6 @@ defmodule LockedIn.Posts do
       ** (Ecto.NoResultsError)
 
   """
-  def with_assoc(struct, assocs) do
-    Repo.preload(struct, assocs)
-  end
   def get_post!(id), do: Repo.get!(Post, id)
   def get_post_by_user!(post_id,user_id) do
     Repo.get_by(Post, [id: post_id, user_id: user_id])
@@ -136,7 +133,18 @@ defmodule LockedIn.Posts do
   def like_post(%Post{} = post, user_id) do
     Multi.new()
     |> Multi.insert(:like, post |> Ecto.build_assoc(:likes, user_id: user_id))
-    |> Multi.insert(:notification, post |> Ecto.build_assoc(:notification, %{sender_id: user_id, recipient_id: post.user_id, post_id: post.id, comment_id: nil}))
+    |> Multi.merge(fn %{like: _like} ->
+        if post.user_id != user_id do
+          Multi.new()
+          |> Multi.insert(:notification, post |> Ecto.build_assoc(:notification,
+           %{sender_id: user_id,
+            recipient_id: post.user_id,
+            post_id: post.id,
+            comment_id: nil}))
+        else
+          Multi.new()
+        end
+      end)
     |> Repo.transaction()
     |> case do
       {:ok, %{like: like}} ->
@@ -202,16 +210,19 @@ defmodule LockedIn.Posts do
     # |> Repo.insert()
     Multi.new()
     |> Multi.insert(:comment, Ecto.build_assoc(post, :comments, user_id: user_id) |> Comment.changeset(attrs))
-    |> Multi.run(:notification, fn _repo, %{comment: comment} ->
-      comment
-      |> Ecto.build_assoc(:notification, %{comment_id: comment.id, sender_id: user_id, recipient_id: post.user_id, post_id: post.id, is_comment: true})
-      |> Repo.insert()
-      # Notification.create_notification(%{
-        # user_id: user_id,
-        # post_id: post.id,
-        # comment_id: comment.id,
-        # message: "A new comment has been created."
-      # })
+    |> Multi.merge(fn %{comment: comment} ->
+      if post.user_id != user_id do
+        Multi.new()
+        |>
+        Multi.insert(:notification,comment |> Ecto.build_assoc(:notification, %{
+          comment_id: comment.id,
+          sender_id: user_id,
+          recipient_id: post.user_id,
+          post_id: post.id
+          }))
+      else
+        Multi.new()
+      end
     end)
     |> Repo.transaction()
     |> case do

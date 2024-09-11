@@ -152,7 +152,6 @@ defmodule LockedIn.Accounts do
 
   def get_user_with_liked_posts(id), do: Repo.one(from u in User, where: u.id == ^id, preload: [:liked_posts])
 
-  def with_assoc(user, assocs\\[]), do: Repo.preload(user, assocs)
   # def get_users_liked_posts(user), do: Repo.preload(user, :liked_posts)
 
   ## User registration
@@ -613,7 +612,7 @@ defmodule LockedIn.Accounts do
   end
 
   def get_profile(user_id) do
-    user = get_user!(user_id) |> with_assoc(:skills)
+    user = get_user!(user_id) |> preload([:skills])
     IO.inspect(user)
     # skills = user |> Ecto.assoc(:skills) |> Repo.all()
     # connection = get_connection()
