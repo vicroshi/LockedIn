@@ -49,9 +49,10 @@ defmodule LockedInWeb.Router do
     post "/connect/:requestee_id", ConnectionController, :request
     patch "/connect/:requester_id", ConnectionController, :accept
     delete "/connect/:id", ConnectionController, :delete
+    get "/connections", ConnectionController, :index
+    get "/connections/requests", ConnectionController, :request_index
     get "/users/:user_id/liked_posts", UserController, :liked_posts
     get "/feed", UserController, :feed
-    get "/connections", ConnectionController, :index
     # get "/users/:user_id/profile", UserController, :profile
     resources "/posts", PostController, except: [:new, :edit], param: "post_id"
     scope "/posts/:post_id" do
@@ -63,6 +64,11 @@ defmodule LockedInWeb.Router do
     end
     get "/notifications", UserController, :notifications
     patch "/notifications", UserController, :read_notifications
+    resources "/job_offers", JobOfferController, only: [:create, :show, :index], param: "job_offer_id"
+    get "/job_offers/feed", JobOfferController, :feed
+    scope "/job_offers/:job_offer_id" do
+      resources "/applications", JobApplicationController, only: [:create, :show, :index, :delete], param: "application_id"
+    end
     patch "/users/profile", UserController, :update
     get "/users/profile/:user_id", UserController, :profile
     pipe_through :authorized

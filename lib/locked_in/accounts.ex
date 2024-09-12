@@ -527,6 +527,10 @@ defmodule LockedIn.Accounts do
       Repo.get_by(Connection, requester_id: requester_id, requestee_id: requestee_id)
   end
 
+  def get_connection_requests(user_id) do
+    Repo.all from c in Connection, where: c.requestee_id == ^user_id and c.has_accepted == false, preload: [:requester], order_by: [desc: c.inserted_at]
+  end
+
   def get_connections(user) do
     connections_query = user |> Ecto.assoc(:connections)
     reverse_connections_query = user |> Ecto.assoc(:reverse_connections)
