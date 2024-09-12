@@ -1,4 +1,5 @@
 defmodule LockedInWeb.Router do
+  # alias LockedInWeb.NotificationController
   use LockedInWeb, :router
 
   import LockedInWeb.UserAuth
@@ -56,7 +57,12 @@ defmodule LockedInWeb.Router do
     scope "/posts/:post_id" do
       resources "/comments", CommentController, only: [:create, :show, :index , :delete], param: "comment_id"
     end
+    scope "/notifications"  do
+      get "/", NotificationController, :index
+      patch "/:notification_id", NotificationController, :update
+    end
     get "/notifications", UserController, :notifications
+    patch "/notifications", UserController, :read_notifications
     patch "/users/profile", UserController, :update
     get "/users/profile/:user_id", UserController, :profile
     pipe_through :authorized

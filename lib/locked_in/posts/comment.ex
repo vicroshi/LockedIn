@@ -6,7 +6,7 @@ defmodule LockedIn.Posts.Comment do
     field :content, :string
     belongs_to :user, LockedIn.Accounts.User
     belongs_to :post, LockedIn.Posts.Post
-    has_one :notification, LockedIn.Posts.Notification
+    has_one :notification, LockedIn.Accounts.Notification
     timestamps(type: :utc_datetime, updated_at: false)
   end
 

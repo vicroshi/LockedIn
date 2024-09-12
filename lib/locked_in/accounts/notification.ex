@@ -1,4 +1,4 @@
-defmodule LockedIn.Posts.Notification do
+defmodule LockedIn.Accounts.Notification do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -14,6 +14,7 @@ defmodule LockedIn.Posts.Notification do
   @doc false
   def changeset(notification, attrs) do
     notification
+    |> cast(attrs, [])
     |> validate_required([:sender_id, :recipient_id, :post_id])
     |> not_same_user()
   end
@@ -26,4 +27,11 @@ defmodule LockedIn.Posts.Notification do
       changeset
     end
   end
+
+  def read(notification) do
+    notification
+    |> changeset(%{})
+    |> put_change(:is_read, true)
+  end
+
 end

@@ -8,7 +8,7 @@ defmodule LockedIn.Accounts do
   alias Ecto.Changeset
   alias LockedIn.Repo
 
-  alias LockedIn.Accounts.{User, UserToken, UserNotifier,Connection}
+  alias LockedIn.Accounts.{User, UserToken, UserNotifier,Connection, Notification}
   alias LockedIn.Posts.{Post, Like}
   ## Database getters
 
@@ -639,6 +639,16 @@ defmodule LockedIn.Accounts do
       {:error, changeset} ->
         {:error, changeset}
     end
+  end
+
+  def get_notification_by_user(user_id, notif_id) do
+    Repo.get_by(Notification, recipient_id: user_id, id: notif_id)
+  end
+
+  def update_notification(notification) do
+    notification
+    |> Notification.read()
+    |> Repo.update()
   end
 
 end
