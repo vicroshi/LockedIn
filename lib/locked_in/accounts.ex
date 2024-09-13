@@ -105,6 +105,7 @@ defmodule LockedIn.Accounts do
     liked_posts = Repo.all(user_liked_posts_query) |> IO.inspect(label: "liked_posts")
     final_posts = Repo.all(final_query) |> IO.inspect(label: "final_posts")
     Enum.uniq_by(liked_posts ++ final_posts, & &1.id)
+    |> Enum.sort_by(& &1.posted_at, {:desc,NaiveDateTime})
     # |> IO.inspect(label: "merged")
     # []
   end
