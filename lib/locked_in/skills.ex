@@ -101,4 +101,27 @@ defmodule LockedIn.Skills do
   def change_skill(%Skill{} = skill, attrs \\ %{}) do
     Skill.changeset(skill, attrs)
   end
+  def inser_and_get_all_skills([]) do
+    []
+  end
+  def insert_and_get_all_skills(skills) do
+    maps = Enum.map(skills, &%{
+      name: &1["name"],
+    })
+    Repo.insert_all(Skill, maps, on_conflict: :nothing)
+    Repo.all(
+      from s in Skill,
+      where: s.name in ^Enum.map(skills, & &1["name"])
+      # select_merge: %{public: ^Enum.find_value(skills, fn skill -> if skill["name"] == ^s.name end)["public"]}
+      )
+      |> Enum.map(fn s ->
+        public = Enum.find(skills, fn skill ->
+          skill["name"] == s.name
+        end)["public"]
+        # IO.inspect(public)
+        # Map.put(s, :public, public)
+        Skill.set_public(s, public)
+      end)
+  end
+
 end

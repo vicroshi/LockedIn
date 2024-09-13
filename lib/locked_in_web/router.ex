@@ -39,11 +39,11 @@ defmodule LockedInWeb.Router do
   # Other scopes may use custom stacks.
   scope "/api", LockedInWeb do
     pipe_through :api
-    get "/test/:user_id", UserController, :test
     post "/register", UserRegistrationController, :create
     post "/login", UserSessionController, :create
     delete "/logout", UserSessionController, :delete
     pipe_through :authenticted
+    get "/test", UserController, :test
     get "/me", UserController, :show
     get "/posts/:post_id", PostController, :show
     post "/connect/:requestee_id", ConnectionController, :request
@@ -64,10 +64,10 @@ defmodule LockedInWeb.Router do
     end
     get "/notifications", UserController, :notifications
     patch "/notifications", UserController, :read_notifications
-    resources "/job_offers", JobOfferController, only: [:create, :show, :index], param: "job_offer_id"
-    get "/job_offers/feed", JobOfferController, :feed
-    scope "/job_offers/:job_offer_id" do
-      resources "/applications", JobApplicationController, only: [:create, :show, :index, :delete], param: "application_id"
+    resources "/jobs", JobController, only: [:create, :show, :index], param: "job_id"
+    get "/jobs/feed", JobController, :feed
+    scope "/jobs/:job_id" do
+      resources "/applications", ApplicationController, only: [:create, :show, :index, :delete], param: "application_id"
     end
     patch "/users/profile", UserController, :update
     get "/users/profile/:user_id", UserController, :profile

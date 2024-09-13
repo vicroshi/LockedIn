@@ -1,9 +1,9 @@
-defmodule LockedInWeb.JobApplicationControllerTest do
+defmodule LockedInWeb.ApplicationControllerTest do
   use LockedInWeb.ConnCase
 
   import LockedIn.JobsFixtures
 
-  alias LockedIn.Jobs.JobApplication
+  alias LockedIn.Jobs.Application
 
   @create_attrs %{
     cv: "some cv"
@@ -18,18 +18,18 @@ defmodule LockedInWeb.JobApplicationControllerTest do
   end
 
   describe "index" do
-    test "lists all job_applications", %{conn: conn} do
-      conn = get(conn, ~p"/api/job_applications")
+    test "lists all applications", %{conn: conn} do
+      conn = get(conn, ~p"/api/applications")
       assert json_response(conn, 200)["data"] == []
     end
   end
 
   describe "create job_application" do
     test "renders job_application when data is valid", %{conn: conn} do
-      conn = post(conn, ~p"/api/job_applications", job_application: @create_attrs)
+      conn = post(conn, ~p"/api/applications", job_application: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
-      conn = get(conn, ~p"/api/job_applications/#{id}")
+      conn = get(conn, ~p"/api/applications/#{id}")
 
       assert %{
                "id" => ^id,
@@ -38,7 +38,7 @@ defmodule LockedInWeb.JobApplicationControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, ~p"/api/job_applications", job_application: @invalid_attrs)
+      conn = post(conn, ~p"/api/applications", job_application: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -46,11 +46,11 @@ defmodule LockedInWeb.JobApplicationControllerTest do
   describe "update job_application" do
     setup [:create_job_application]
 
-    test "renders job_application when data is valid", %{conn: conn, job_application: %JobApplication{id: id} = job_application} do
-      conn = put(conn, ~p"/api/job_applications/#{job_application}", job_application: @update_attrs)
+    test "renders job_application when data is valid", %{conn: conn, job_application: %Application{id: id} = job_application} do
+      conn = put(conn, ~p"/api/applications/#{job_application}", job_application: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
-      conn = get(conn, ~p"/api/job_applications/#{id}")
+      conn = get(conn, ~p"/api/applications/#{id}")
 
       assert %{
                "id" => ^id,
@@ -59,7 +59,7 @@ defmodule LockedInWeb.JobApplicationControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, job_application: job_application} do
-      conn = put(conn, ~p"/api/job_applications/#{job_application}", job_application: @invalid_attrs)
+      conn = put(conn, ~p"/api/applications/#{job_application}", job_application: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -68,11 +68,11 @@ defmodule LockedInWeb.JobApplicationControllerTest do
     setup [:create_job_application]
 
     test "deletes chosen job_application", %{conn: conn, job_application: job_application} do
-      conn = delete(conn, ~p"/api/job_applications/#{job_application}")
+      conn = delete(conn, ~p"/api/applications/#{job_application}")
       assert response(conn, 204)
 
       assert_error_sent 404, fn ->
-        get(conn, ~p"/api/job_applications/#{job_application}")
+        get(conn, ~p"/api/applications/#{job_application}")
       end
     end
   end

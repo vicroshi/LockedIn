@@ -23,7 +23,9 @@ defmodule LockedInWeb.PostJSON do
       user_fname: post.user.firstname,
       user_lname: post.user.lastname,
       posted_at: post.posted_at,
-      media: post.media_paths
+      media: post.media_paths,
+      like_count: post.like_count,
+      comment_count: post.comment_count
     }
   end
 end

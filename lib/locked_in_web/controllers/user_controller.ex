@@ -92,9 +92,12 @@ defmodule LockedInWeb.UserController do
     render(conn, :profile, user: user)
   end
 
-  def test(conn, %{"user_id" => user_id}) do
-    user = Accounts.get_user!(user_id)
-    render(conn, :test, user: user)
+  def test(conn, _params) do
+    
+    feed = Accounts.test_feed(conn.assigns.current_user)
+    conn
+    |> put_view(LockedInWeb.PostJSON)
+    |> render(:index, posts: feed)
   end
 
 end

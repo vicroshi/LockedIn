@@ -1,0 +1,23 @@
+defmodule LockedIn.Jobs.Job do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  schema "jobs" do
+    field :description, :string
+    field :position, :string
+    field :company_name, :string
+    field :location, :string
+    # field :inserted_at, :date
+    many_to_many :skills, LockedIn.Skills.Skill, join_through: "job_skills", on_replace: :delete
+    belongs_to :user, LockedIn.Accounts.User
+    has_many :applications, LockedIn.Jobs.Application, foreign_key: :job_id
+    timestamps(type: :utc_datetime, updated_at: false)
+  end
+
+  @doc false
+  def changeset(job_offer, attrs) do
+    job_offer
+    |> cast(attrs, [:position,:company_name, :location, :description])
+    |> validate_required([:position, :location, :company_name])
+  end
+end

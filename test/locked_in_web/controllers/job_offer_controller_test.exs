@@ -1,9 +1,9 @@
-defmodule LockedInWeb.JobOfferControllerTest do
+defmodule LockedInWeb.JobControllerTest do
   use LockedInWeb.ConnCase
 
   import LockedIn.JobsFixtures
 
-  alias LockedIn.Jobs.JobOffer
+  alias LockedIn.Jobs.Job
 
   @create_attrs %{
     description: "some description",
@@ -22,18 +22,18 @@ defmodule LockedInWeb.JobOfferControllerTest do
   end
 
   describe "index" do
-    test "lists all job_offers", %{conn: conn} do
-      conn = get(conn, ~p"/api/job_offers")
+    test "lists all jobs", %{conn: conn} do
+      conn = get(conn, ~p"/api/jobs")
       assert json_response(conn, 200)["data"] == []
     end
   end
 
   describe "create job_offer" do
     test "renders job_offer when data is valid", %{conn: conn} do
-      conn = post(conn, ~p"/api/job_offers", job_offer: @create_attrs)
+      conn = post(conn, ~p"/api/jobs", job_offer: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
-      conn = get(conn, ~p"/api/job_offers/#{id}")
+      conn = get(conn, ~p"/api/jobs/#{id}")
 
       assert %{
                "id" => ^id,
@@ -44,7 +44,7 @@ defmodule LockedInWeb.JobOfferControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, ~p"/api/job_offers", job_offer: @invalid_attrs)
+      conn = post(conn, ~p"/api/jobs", job_offer: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -52,11 +52,11 @@ defmodule LockedInWeb.JobOfferControllerTest do
   describe "update job_offer" do
     setup [:create_job_offer]
 
-    test "renders job_offer when data is valid", %{conn: conn, job_offer: %JobOffer{id: id} = job_offer} do
-      conn = put(conn, ~p"/api/job_offers/#{job_offer}", job_offer: @update_attrs)
+    test "renders job_offer when data is valid", %{conn: conn, job_offer: %Job{id: id} = job_offer} do
+      conn = put(conn, ~p"/api/jobs/#{job_offer}", job_offer: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
-      conn = get(conn, ~p"/api/job_offers/#{id}")
+      conn = get(conn, ~p"/api/jobs/#{id}")
 
       assert %{
                "id" => ^id,
@@ -67,7 +67,7 @@ defmodule LockedInWeb.JobOfferControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, job_offer: job_offer} do
-      conn = put(conn, ~p"/api/job_offers/#{job_offer}", job_offer: @invalid_attrs)
+      conn = put(conn, ~p"/api/jobs/#{job_offer}", job_offer: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -76,11 +76,11 @@ defmodule LockedInWeb.JobOfferControllerTest do
     setup [:create_job_offer]
 
     test "deletes chosen job_offer", %{conn: conn, job_offer: job_offer} do
-      conn = delete(conn, ~p"/api/job_offers/#{job_offer}")
+      conn = delete(conn, ~p"/api/jobs/#{job_offer}")
       assert response(conn, 204)
 
       assert_error_sent 404, fn ->
-        get(conn, ~p"/api/job_offers/#{job_offer}")
+        get(conn, ~p"/api/jobs/#{job_offer}")
       end
     end
   end

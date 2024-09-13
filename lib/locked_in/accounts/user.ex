@@ -28,7 +28,7 @@ defmodule LockedIn.Accounts.User do
     has_many :user_skills, LockedIn.Accounts.UserSkill, on_replace: :delete
     many_to_many :skills, LockedIn.Skills.Skill, join_through: LockedIn.Accounts.UserSkill, on_replace: :delete
     # many_to_many :public_skills, LockedIn.Skills.Skill, join_through: LockedIn.Accounts.UserSkill, join_where: [public: true]
-    has_many :applications, LockedIn.Jobs.JobApplication, foreign_key: :applicant_id
+    has_many :applications, LockedIn.Jobs.Application, foreign_key: :applicant_id
     has_many :notifications, LockedIn.Accounts.Notification, foreign_key: :recipient_id, preload_order: [desc: :inserted_at]
     has_many :posts, Post
     has_many :comments, LockedIn.Posts.Comment

@@ -1,11 +1,11 @@
-defmodule LockedInWeb.JobOfferJSON do
-  alias LockedIn.Jobs.JobOffer
+defmodule LockedInWeb.JobJSON do
+  alias LockedIn.Jobs.Job
 
   @doc """
-  Renders a list of job_offers.
+  Renders a list of jobs.
   """
-  def index(%{job_offers: job_offers}) do
-    %{data: for(job_offer <- job_offers, do: data(job_offer))}
+  def index(%{jobs: jobs}) do
+    %{data: for(job_offer <- jobs, do: data(job_offer))}
   end
 
   @doc """
@@ -15,7 +15,7 @@ defmodule LockedInWeb.JobOfferJSON do
     %{data: data(job_offer)}
   end
 
-  defp data(%JobOffer{} = job_offer) do
+  defp data(%Job{} = job_offer) do
     %{
       id: job_offer.id,
       title: job_offer.title,

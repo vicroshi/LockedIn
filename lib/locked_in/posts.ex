@@ -7,8 +7,7 @@ defmodule LockedIn.Posts do
   alias Flop.CustomTypes.Like
   alias LockedIn.Repo
   alias Ecto.Multi
-  alias LockedIn.Posts.Post
-  alias LockedIn.Posts.Like
+  alias LockedIn.Posts.{Post,Like,Comment}
   @doc """
   Returns the list of posts.
 
@@ -128,6 +127,16 @@ defmodule LockedIn.Posts do
   """
   def change_post(%Post{} = post, attrs \\ %{}) do
     Post.changeset(post, attrs)
+  end
+
+  def with_counts(post) do
+    post
+    |> Map.put(:like_count, Repo.aggregate(Like |> where(post_id: ^post.id), :count))
+    |> Map.put(:comment_count, Repo.aggregate(Comment |> where(post_id: ^post.id), :count))
+    # |> Repo.preload(:likes, from(l in Like, where: l.post_id == ^post.id, group_by: l.post_id, select: %{like_count: count(l.id)}))
+    # |> Repo.preload(:comments)
+    # |> Map.put(:like_count, Enum.count(post.likes))
+    # |> Map.put(:comment_count, Enum.count(post.comments))
   end
 
   def like_post(%Post{} = post, user_id) do

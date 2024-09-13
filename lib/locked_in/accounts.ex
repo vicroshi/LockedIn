@@ -4,35 +4,117 @@ defmodule LockedIn.Accounts do
   """
 
   import Ecto.Query, warn: false
+  # alias LockedIn.Skills.Skill
+  alias LockedIn.Skills
   alias LockedIn.Accounts.UserSkill
   alias Ecto.Changeset
   alias LockedIn.Repo
-
   alias LockedIn.Accounts.{User, UserToken, UserNotifier,Connection, Notification}
-  alias LockedIn.Posts.{Post, Like}
+  alias LockedIn.Posts.{Post, Like, Comment}
   ## Database getters
+
+
+  def test_feed(user) do
+    user_id = user.id
+
+    posts_with_count_query =
+      from p in Post,
+        # join: l in assoc(p, :likes),
+        left_join: l in Like,
+        on: l.post_id == p.id,
+        left_join: c in Comment,
+        on: c.post_id == p.id,
+        group_by: p.id,
+        select: %{p | like_count: count(l.user_id, :distinct), comment_count: count(c.id, :distinct)}
+    user_posts_query =
+      from p in Post,
+      # preload: [:user, :likes],
+      join: l in subquery(posts_with_count_query),
+      on: p.id == l.id,
+      where: p.user_id == ^user_id,
+      distinct: true,
+      select: %{p | like_count: l.like_count, comment_count: l.comment_count}
+
+    user_liked_posts_query =
+      from p in Post,
+      # preload: [:user, :likes],
+      join: lp in subquery(posts_with_count_query),
+      on: p.id == lp.id,
+      join: l in assoc(p, :likes),
+      on: l.post_id == p.id,
+      where: l.user_id == ^user_id,
+      distinct: true,
+      select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
+
+    connection_posts_query =
+      from p in Post,
+      join: lp in subquery(posts_with_count_query),
+      on: p.id == lp.id,
+      join: c in Connection,
+      on: c.requestee_id == p.user_id,
+      where: c.requester_id == ^user_id and c.has_accepted == true,
+      distinct: true,
+      select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
+
+    connection_liked_posts_query =
+      from p in Post,
+      join: lp in subquery(posts_with_count_query),
+      on: p.id == lp.id,
+      join: l in Like,
+      on: l.post_id == p.id,
+      join: c in Connection,
+      on: c.requestee_id == l.user_id,
+      where: c.requester_id == ^user_id  and c.has_accepted == true,
+      distinct: true,
+      select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
+
+    reverse_connection_posts_query =
+      from p in Post,
+      join: lp in subquery(posts_with_count_query),
+      on: p.id == lp.id,
+      join: c in Connection,
+      on: c.requester_id == p.user_id,
+      where: c.requestee_id == ^user_id and c.has_accepted == true,
+      distinct: true,
+      select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
+
+    reverse_connection_liked_posts_query =
+      from p in Post,
+      join: lp in subquery(posts_with_count_query),
+      on: p.id == lp.id,
+      join: l in Like,
+      on: l.post_id == p.id,
+      join: c in Connection,
+      on: c.requester_id == l.user_id,
+      where: c.requestee_id == ^user_id and c.has_accepted == true,
+      distinct: true,
+      select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
+
+    feed_query = user_posts_query
+                 |> union(^user_liked_posts_query)
+                 |> union(^connection_posts_query)
+                 |> union(^connection_liked_posts_query)
+                 |> union(^reverse_connection_posts_query)
+                 |> union(^reverse_connection_liked_posts_query)
+      # select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
+    final_query =
+      from p in subquery(feed_query),
+      preload: [:user, :likes],
+      order_by: [desc: p.posted_at],
+      select: %{p | like_count: p.like_count, comment_count: p.comment_count}
+    Repo.all(final_query)
+  end
 
   def get_feed(user) do
     user_id = user.id
-    # user = get_user!(user_id)
-    # posts = Ecto.assoc(user,:posts) |> Repo.all() |> IO.inspect(label: "posts")
-    # liked_posts = Ecto.assoc(user,:liked_posts) |> Repo.all() |> IO.inspect(label: "liked_posts")
-    # connection_posts = Ecto.assoc(user,:connection_posts) |> Repo.all() |> IO.inspect(label: "connection_posts")
-    # connection_liked_posts = Ecto.assoc(user,:connection_liked_posts) |> Repo.all() |> IO.inspect(label: "connection_liked_posts")
-    # reverse_connection_posts = Ecto.assoc(user,:reverse_connection_posts) |> Repo.all() |> IO.inspect(label: "reverse_connection_posts")
-    # reverse_connection_liked_posts = Ecto.assoc(user,:reverse_connection_liked_posts) |> Repo.all() |> IO.inspect(label: "reverse_connection_liked_posts", syntax_colors: [string: :blue, atom: :red])    # |> Ecto.assoc(:connection_posts)
-    # Repo.preload(user,[:posts, :connection_posts, :reverse_connection_posts, :connection_liked_posts, :reverse_connection_liked_posts])
-    # Repo.preload(user,[:posts])
-    # Repo.preload(user,[:liked_posts])
-    # Repo.preload(user,[:connection_posts])
-    # Repo.preload(user,[:reverse_connection_posts])
-    # Repo.preload(user,[:connection_liked_posts])
-    # Repo.preload(user,[:reverse_connection_liked_posts])
-    # |>
-    # IO.inspect(label: "user")
-    # Enum.uniq(user.posts ++ user.connection_posts ++ user.reverse_connection_posts ++ user.connection_liked_posts ++ user.reverse_connection_posts ++ user.reverse_connection_liked_posts) |>
-    # Enum.sort_by(& &1.posted_at, &>=/2)
-    []
+
+    posts_with_count_query =
+      from p in Post,
+        left_join: l in Like,
+        on: l.post_id == p.id,
+        group_by: p.id,
+        select: %{p | like_count: count(l.id)}
+
     user_posts_query = from p in Post, where: p.user_id == ^user_id
 
     user_liked_posts_query =
@@ -622,12 +704,20 @@ defmodule LockedIn.Accounts do
     # connection = get_connection()
   end
 
+
+
+
+
   def update_profile(user, attrs) do
     # update association skills
     case user
     |> Repo.preload([:skills])
     |> Changeset.cast(attrs, [])
-    |> Changeset.cast_assoc(:skills)
+    |> Changeset.put_assoc(:skills, Skills.insert_and_get_all_skills(attrs["skills"])|> IO.inspect())
+    # |> IO.inspect(structs: false)
+    # |> Changeset.put_assoc(:skills, Enum.map(attrs["skills"], fn skill ->
+    #   %Skill{id: skill["id"], name: skill["name"], public: skill["public"]}
+    # end)|> IO.inspect())
     |> Changeset.cast_embed(:experience)
     |> Repo.update()
     do
@@ -636,7 +726,7 @@ defmodule LockedIn.Accounts do
         user_skills = Enum.reduce(user.skills,[], fn skill,acc ->
           [%{user_id: user.id, skill_id: skill.id, public: skill.public} | acc]
         end)
-        IO.inspect(user_skills)
+        IO.inspect(user.skills)
         Changeset.change(user|>Repo.preload([:user_skills]))
         |> Changeset.put_assoc(:user_skills, user_skills)
         |> Repo.update()

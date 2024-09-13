@@ -21,9 +21,9 @@ defmodule LockedInWeb.PostController do
     render(conn, :index, posts: posts)
   end
 
-  def create(conn, params) do
+  def create(conn, %{"post" => post_params}) do
     # with {:ok, %Post{} = post} <- Posts.create_post(post_params) do
-    with {:ok, %Post{} = post} <- Posts.create_post(Map.put(params,"user_id",conn.assigns.current_user.id)) do
+    with {:ok, %Post{} = post} <- Posts.create_post(Map.put(post_params,"user_id",conn.assigns.current_user.id)) do
       # IO.inspect(conn)
       conn
       |> put_status(:created)
@@ -33,7 +33,7 @@ defmodule LockedInWeb.PostController do
 
   def show(conn, %{"post_id" => _id}) do
     # post = Posts.get_post!(id)
-    render(conn, :show, post: conn.assigns.post)
+    render(conn, :show, post: conn.assigns.post |> Posts.with_counts())
   end
 
   def update(conn, %{"id" => id, "post" => post_params}) do

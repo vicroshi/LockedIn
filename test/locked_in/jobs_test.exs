@@ -3,16 +3,16 @@ defmodule LockedIn.JobsTest do
 
   alias LockedIn.Jobs
 
-  describe "job_offers" do
-    alias LockedIn.Jobs.JobOffer
+  describe "jobs" do
+    alias LockedIn.Jobs.Job
 
     import LockedIn.JobsFixtures
 
     @invalid_attrs %{description: nil, title: nil, skills: nil}
 
-    test "list_job_offers/0 returns all job_offers" do
+    test "list_jobs/0 returns all jobs" do
       job_offer = job_offer_fixture()
-      assert Jobs.list_job_offers() == [job_offer]
+      assert Jobs.list_jobs() == [job_offer]
     end
 
     test "get_job_offer!/1 returns the job_offer with given id" do
@@ -23,7 +23,7 @@ defmodule LockedIn.JobsTest do
     test "create_job_offer/1 with valid data creates a job_offer" do
       valid_attrs = %{description: "some description", title: "some title", skills: ["option1", "option2"]}
 
-      assert {:ok, %JobOffer{} = job_offer} = Jobs.create_job_offer(valid_attrs)
+      assert {:ok, %Job{} = job_offer} = Jobs.create_job_offer(valid_attrs)
       assert job_offer.description == "some description"
       assert job_offer.title == "some title"
       assert job_offer.skills == ["option1", "option2"]
@@ -37,7 +37,7 @@ defmodule LockedIn.JobsTest do
       job_offer = job_offer_fixture()
       update_attrs = %{description: "some updated description", title: "some updated title", skills: ["option1"]}
 
-      assert {:ok, %JobOffer{} = job_offer} = Jobs.update_job_offer(job_offer, update_attrs)
+      assert {:ok, %Job{} = job_offer} = Jobs.update_job_offer(job_offer, update_attrs)
       assert job_offer.description == "some updated description"
       assert job_offer.title == "some updated title"
       assert job_offer.skills == ["option1"]
@@ -51,7 +51,7 @@ defmodule LockedIn.JobsTest do
 
     test "delete_job_offer/1 deletes the job_offer" do
       job_offer = job_offer_fixture()
-      assert {:ok, %JobOffer{}} = Jobs.delete_job_offer(job_offer)
+      assert {:ok, %Job{}} = Jobs.delete_job_offer(job_offer)
       assert_raise Ecto.NoResultsError, fn -> Jobs.get_job_offer!(job_offer.id) end
     end
 
@@ -61,16 +61,16 @@ defmodule LockedIn.JobsTest do
     end
   end
 
-  describe "job_applications" do
-    alias LockedIn.Jobs.JobApplication
+  describe "applications" do
+    alias LockedIn.Jobs.Application
 
     import LockedIn.JobsFixtures
 
     @invalid_attrs %{cv: nil}
 
-    test "list_job_applications/0 returns all job_applications" do
+    test "list_applications/0 returns all applications" do
       job_application = job_application_fixture()
-      assert Jobs.list_job_applications() == [job_application]
+      assert Jobs.list_applications() == [job_application]
     end
 
     test "get_job_application!/1 returns the job_application with given id" do
@@ -81,7 +81,7 @@ defmodule LockedIn.JobsTest do
     test "create_job_application/1 with valid data creates a job_application" do
       valid_attrs = %{cv: "some cv"}
 
-      assert {:ok, %JobApplication{} = job_application} = Jobs.create_job_application(valid_attrs)
+      assert {:ok, %Application{} = job_application} = Jobs.create_job_application(valid_attrs)
       assert job_application.cv == "some cv"
     end
 
@@ -93,7 +93,7 @@ defmodule LockedIn.JobsTest do
       job_application = job_application_fixture()
       update_attrs = %{cv: "some updated cv"}
 
-      assert {:ok, %JobApplication{} = job_application} = Jobs.update_job_application(job_application, update_attrs)
+      assert {:ok, %Application{} = job_application} = Jobs.update_job_application(job_application, update_attrs)
       assert job_application.cv == "some updated cv"
     end
 
@@ -105,7 +105,7 @@ defmodule LockedIn.JobsTest do
 
     test "delete_job_application/1 deletes the job_application" do
       job_application = job_application_fixture()
-      assert {:ok, %JobApplication{}} = Jobs.delete_job_application(job_application)
+      assert {:ok, %Application{}} = Jobs.delete_job_application(job_application)
       assert_raise Ecto.NoResultsError, fn -> Jobs.get_job_application!(job_application.id) end
     end
 

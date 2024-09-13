@@ -47,7 +47,7 @@ defmodule LockedInWeb.UserJSON do
     }
   end
 
-  
+
 
   # def test(%{user: user}) do
     # Map.from_struct(user)
@@ -62,7 +62,7 @@ defmodule LockedInWeb.UserJSON do
       phone: user.phone,
       education: for(education <- user.education, do: data(education)),
       experience: for(experience <- user.experience, do: data(experience)),
-      skills: for(skill <- user.skills, do: %{"id" => skill.id, "name" => skill.name})
+      skills: for(skill <- user.skills, do: %{"name" => skill.name})
     }
   end
 

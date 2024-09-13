@@ -4,117 +4,119 @@ defmodule LockedIn.Jobs do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Changeset
   alias LockedIn.Repo
 
-  alias LockedIn.Jobs.JobOffer
+  alias LockedIn.Jobs.Job
 
   @doc """
-  Returns the list of job_offers.
+  Returns the list of jobs.
 
   ## Examples
 
-      iex> list_job_offers()
-      [%JobOffer{}, ...]
+      iex> list_jobs()
+      [%Job{}, ...]
 
   """
-  def list_job_offers do
-    Repo.all(JobOffer)
+  def list_jobs do
+    Repo.all(Job)
   end
 
   @doc """
-  Gets a single job_offer.
+  Gets a single job.
 
   Raises `Ecto.NoResultsError` if the Job offer does not exist.
 
   ## Examples
 
-      iex> get_job_offer!(123)
-      %JobOffer{}
+      iex> get_job!(123)
+      %Job{}
 
-      iex> get_job_offer!(456)
+      iex> get_job!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_job_offer!(id), do: Repo.get!(JobOffer, id)
+  def get_job!(id), do: Repo.get!(Job, id)
 
   @doc """
-  Creates a job_offer.
+  Creates a job.
 
   ## Examples
 
-      iex> create_job_offer(%{field: value})
-      {:ok, %JobOffer{}}
+      iex> create_job(%{field: value})
+      {:ok, %Job{}}
 
-      iex> create_job_offer(%{field: bad_value})
+      iex> create_job(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_job_offer(attrs \\ %{}) do
-    %JobOffer{}
-    |> JobOffer.changeset(attrs)
+  def create_job(attrs \\ %{}) do
+    %Job{}
+    |> Job.changeset(attrs)
+    |> Changeset.cast_assoc(:skills)
     |> Repo.insert()
   end
 
   @doc """
-  Updates a job_offer.
+  Updates a job.
 
   ## Examples
 
-      iex> update_job_offer(job_offer, %{field: new_value})
-      {:ok, %JobOffer{}}
+      iex> update_job(job, %{field: new_value})
+      {:ok, %Job{}}
 
-      iex> update_job_offer(job_offer, %{field: bad_value})
+      iex> update_job(job, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_job_offer(%JobOffer{} = job_offer, attrs) do
-    job_offer
-    |> JobOffer.changeset(attrs)
+  def update_job(%Job{} = job, attrs) do
+    job
+    |> Job.changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
-  Deletes a job_offer.
+  Deletes a job.
 
   ## Examples
 
-      iex> delete_job_offer(job_offer)
-      {:ok, %JobOffer{}}
+      iex> delete_job(job)
+      {:ok, %Job{}}
 
-      iex> delete_job_offer(job_offer)
+      iex> delete_job(job)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_job_offer(%JobOffer{} = job_offer) do
-    Repo.delete(job_offer)
+  def delete_job(%Job{} = job) do
+    Repo.delete(job)
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking job_offer changes.
+  Returns an `%Ecto.Changeset{}` for tracking job changes.
 
   ## Examples
 
-      iex> change_job_offer(job_offer)
-      %Ecto.Changeset{data: %JobOffer{}}
+      iex> change_job(job)
+      %Ecto.Changeset{data: %Job{}}
 
   """
-  def change_job_offer(%JobOffer{} = job_offer, attrs \\ %{}) do
-    JobOffer.changeset(job_offer, attrs)
+  def change_job(%Job{} = job, attrs \\ %{}) do
+    Job.changeset(job, attrs)
   end
 
-  alias LockedIn.Jobs.JobApplication
+  alias LockedIn.Jobs.Application
 
   @doc """
-  Returns the list of job_applications.
+  Returns the list of applications.
 
   ## Examples
 
-      iex> list_job_applications()
-      [%JobApplication{}, ...]
+      iex> list_applications()
+      [%Application{}, ...]
 
   """
-  def list_job_applications do
-    Repo.all(JobApplication)
+  def list_applications do
+    Repo.all(Application)
   end
 
   @doc """
@@ -125,13 +127,13 @@ defmodule LockedIn.Jobs do
   ## Examples
 
       iex> get_job_application!(123)
-      %JobApplication{}
+      %Application{}
 
       iex> get_job_application!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_job_application!(id), do: Repo.get!(JobApplication, id)
+  def get_job_application!(id), do: Repo.get!(Application, id)
 
   @doc """
   Creates a job_application.
@@ -139,15 +141,15 @@ defmodule LockedIn.Jobs do
   ## Examples
 
       iex> create_job_application(%{field: value})
-      {:ok, %JobApplication{}}
+      {:ok, %Application{}}
 
       iex> create_job_application(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
   def create_job_application(attrs \\ %{}) do
-    %JobApplication{}
-    |> JobApplication.changeset(attrs)
+    %Application{}
+    |> Application.changeset(attrs)
     |> Repo.insert()
   end
 
@@ -157,15 +159,15 @@ defmodule LockedIn.Jobs do
   ## Examples
 
       iex> update_job_application(job_application, %{field: new_value})
-      {:ok, %JobApplication{}}
+      {:ok, %Application{}}
 
       iex> update_job_application(job_application, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_job_application(%JobApplication{} = job_application, attrs) do
+  def update_job_application(%Application{} = job_application, attrs) do
     job_application
-    |> JobApplication.changeset(attrs)
+    |> Application.changeset(attrs)
     |> Repo.update()
   end
 
@@ -175,13 +177,13 @@ defmodule LockedIn.Jobs do
   ## Examples
 
       iex> delete_job_application(job_application)
-      {:ok, %JobApplication{}}
+      {:ok, %Application{}}
 
       iex> delete_job_application(job_application)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_job_application(%JobApplication{} = job_application) do
+  def delete_job_application(%Application{} = job_application) do
     Repo.delete(job_application)
   end
 
@@ -191,10 +193,10 @@ defmodule LockedIn.Jobs do
   ## Examples
 
       iex> change_job_application(job_application)
-      %Ecto.Changeset{data: %JobApplication{}}
+      %Ecto.Changeset{data: %Application{}}
 
   """
-  def change_job_application(%JobApplication{} = job_application, attrs \\ %{}) do
-    JobApplication.changeset(job_application, attrs)
+  def change_job_application(%Application{} = job_application, attrs \\ %{}) do
+    Application.changeset(job_application, attrs)
   end
 end

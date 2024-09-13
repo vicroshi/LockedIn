@@ -1,8 +1,8 @@
-defmodule LockedIn.Repo.Migrations.CreateJobOffers do
+defmodule LockedIn.Repo.Migrations.CreateJobs do
   use Ecto.Migration
 
   def change do
-    create table(:job_offers) do
+    create table(:jobs) do
       add :title, :string
       add :skills, {:array, :string}
       add :description, :text
@@ -11,6 +11,6 @@ defmodule LockedIn.Repo.Migrations.CreateJobOffers do
       timestamps(type: :utc_datetime)
     end
 
-    create index(:job_offers, [:user_id])
+    create index(:jobs, [:user_id])
   end
 end
