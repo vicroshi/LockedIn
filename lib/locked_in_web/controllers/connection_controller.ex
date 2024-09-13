@@ -68,7 +68,7 @@ defmodule LockedInWeb.ConnectionController do
   end
 
   defp not_same(conn,_opt) do
-    user_id = conn.params["requester_id"] || conn.params["requestee_id"]
+    user_id = conn.params["requester_id"] || conn.params["requestee_id"] || conn.params["id"]
     user = conn.assigns.current_user
     if not is_nil(user_id) && String.to_integer(user_id) != user.id do
       conn
