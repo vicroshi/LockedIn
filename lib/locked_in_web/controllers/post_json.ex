@@ -25,6 +25,7 @@ defmodule LockedInWeb.PostJSON do
       posted_at: post.posted_at,
       media: post.media_paths,
       like_count: post.like_count,
+      liked: post.liked,
       comment_count: post.comment_count
     }
   end

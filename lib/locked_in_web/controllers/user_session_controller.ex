@@ -34,7 +34,9 @@ defmodule LockedInWeb.UserSessionController do
       |> render("show.json", user: user)
     else
       # In order to prevent user enumeration attacks, don't disclose whether the email is registered.
-      json(conn, %{errors: "Invalid email or password"})
+      conn
+      |> put_status(:not_found)
+      |> json(%{errors: "Invalid email or password"})
     end
   end
 

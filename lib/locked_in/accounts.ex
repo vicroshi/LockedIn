@@ -37,14 +37,14 @@ defmodule LockedIn.Accounts do
 
     user_liked_posts_query =
       from p in Post,
-      # preload: [:user, :likes],
+      preload: [:user, :likes],
       join: lp in subquery(posts_with_count_query),
       on: p.id == lp.id,
       join: l in assoc(p, :likes),
       on: l.post_id == p.id,
       where: l.user_id == ^user_id,
       distinct: true,
-      select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
+      select: %{p | like_count: lp.like_count, comment_count: lp.comment_count, liked: true}
 
     connection_posts_query =
       from p in Post,
@@ -91,18 +91,22 @@ defmodule LockedIn.Accounts do
       select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
 
     feed_query = user_posts_query
-                 |> union(^user_liked_posts_query)
                  |> union(^connection_posts_query)
                  |> union(^connection_liked_posts_query)
                  |> union(^reverse_connection_posts_query)
                  |> union(^reverse_connection_liked_posts_query)
+
       # select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
     final_query =
       from p in subquery(feed_query),
       preload: [:user, :likes],
       order_by: [desc: p.posted_at],
-      select: %{p | like_count: p.like_count, comment_count: p.comment_count}
-    Repo.all(final_query)
+      select: %{p | like_count: p.like_count, comment_count: p.comment_count, liked: false}
+    liked_posts = Repo.all(user_liked_posts_query) |> IO.inspect(label: "liked_posts")
+    final_posts = Repo.all(final_query) |> IO.inspect(label: "final_posts")
+    Enum.uniq_by(liked_posts ++ final_posts, & &1.id)
+    # |> IO.inspect(label: "merged")
+    # []
   end
 
   # def get_feed(user) do

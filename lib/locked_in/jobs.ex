@@ -132,83 +132,83 @@ defmodule LockedIn.Jobs do
   end
 
   @doc """
-  Gets a single job_application.
+  Gets a single application.
 
   Raises `Ecto.NoResultsError` if the Job application does not exist.
 
   ## Examples
 
-      iex> get_job_application!(123)
+      iex> get_application!(123)
       %Application{}
 
-      iex> get_job_application!(456)
+      iex> get_application!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_job_application!(id), do: Repo.get!(Application, id)
+  def get_application!(id), do: Repo.get!(Application, id)
 
   @doc """
-  Creates a job_application.
+  Creates a application.
 
   ## Examples
 
-      iex> create_job_application(%{field: value})
+      iex> create_application(%{field: value})
       {:ok, %Application{}}
 
-      iex> create_job_application(%{field: bad_value})
+      iex> create_application(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_job_application(attrs \\ %{}) do
-    %Application{}
+  def create_application(user_id,attrs \\ %{}) do
+    %Application{applicant_id: user_id}
     |> Application.changeset(attrs)
     |> Repo.insert()
   end
 
   @doc """
-  Updates a job_application.
+  Updates a application.
 
   ## Examples
 
-      iex> update_job_application(job_application, %{field: new_value})
+      iex> update_application(application, %{field: new_value})
       {:ok, %Application{}}
 
-      iex> update_job_application(job_application, %{field: bad_value})
+      iex> update_application(application, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_job_application(%Application{} = job_application, attrs) do
-    job_application
+  def update_application(%Application{} = application, attrs) do
+    application
     |> Application.changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
-  Deletes a job_application.
+  Deletes a application.
 
   ## Examples
 
-      iex> delete_job_application(job_application)
+      iex> delete_application(application)
       {:ok, %Application{}}
 
-      iex> delete_job_application(job_application)
+      iex> delete_application(application)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_job_application(%Application{} = job_application) do
-    Repo.delete(job_application)
+  def delete_application(%Application{} = application) do
+    Repo.delete(application)
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking job_application changes.
+  Returns an `%Ecto.Changeset{}` for tracking application changes.
 
   ## Examples
 
-      iex> change_job_application(job_application)
+      iex> change_application(application)
       %Ecto.Changeset{data: %Application{}}
 
   """
-  def change_job_application(%Application{} = job_application, attrs \\ %{}) do
-    Application.changeset(job_application, attrs)
+  def change_application(%Application{} = application, attrs \\ %{}) do
+    Application.changeset(application, attrs)
   end
 end

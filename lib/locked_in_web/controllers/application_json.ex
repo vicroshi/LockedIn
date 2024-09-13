@@ -10,20 +10,22 @@ defmodule LockedInWeb.ApplicationJSON do
   Renders a list of applications.
   """
   def index(%{applications: applications}) do
-    %{data: for(job_application <- applications, do: data(job_application))}
+    %{data: for(application <- applications, do: data(application))}
   end
 
   @doc """
-  Renders a single job_application.
+  Renders a single application.
   """
-  def show(%{job_application: job_application}) do
-    %{data: data(job_application)}
+  def show(%{application: application}) do
+    %{data: data(application)}
   end
 
-  defp data(%Application{} = job_application) do
+  defp data(%Application{} = application) do
     %{
-      id: job_application.id,
-      cv: job_application.cv
+      user_id: application.applicant_id,
+      user_fname: application.applicant.firstname,
+      user_lname: application.applicant.lastname,
+      job_id: application.job_id
     }
   end
 end
