@@ -22,6 +22,14 @@ defmodule LockedIn.Jobs do
     Repo.all(Job)
   end
 
+  def list_jobs_by_user(user_id) do
+    Repo.all(from(j in Job, where: j.user_id == ^user_id))
+  end
+
+  def jobs_feed(user_id) do
+    []
+  end
+
   @doc """
   Gets a single job.
 

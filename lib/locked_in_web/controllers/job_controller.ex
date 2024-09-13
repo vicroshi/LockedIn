@@ -8,7 +8,7 @@ defmodule LockedInWeb.JobController do
 
   def index(conn, _params) do
     jobs = Jobs.list_jobs()
-    render(conn, :index, jobs: jobs)
+    render(conn, :index, jobs: jobs |> with_assoc([:user, :skills, :applications]))
   end
 
   def create(conn, %{"job" => job_params}) do
@@ -20,10 +20,9 @@ defmodule LockedInWeb.JobController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
+  def show(conn, %{"job_id" => id}) do
     job = Jobs.get_job!(id)
-    render(conn, :show, job: job)
-  end
+    render(conn, :show, job: job |> with_assoc([:user, :skills, :applications])) end
 
   def update(conn, %{"id" => id, "job" => job_params}) do
     job = Jobs.get_job!(id)
@@ -40,4 +39,10 @@ defmodule LockedInWeb.JobController do
       send_resp(conn, :no_content, "")
     end
   end
+
+  def feed(conn, _params) do
+    jobs = Jobs.list_jobs()
+    render(conn, :feed, jobs: jobs |> with_assoc([:user, :skills, :applications]))
+  end
+
 end

@@ -21,7 +21,7 @@ defmodule LockedInWeb.PostController do
     render(conn, :index, posts: posts)
   end
 
-  def create(conn, %{"post" => post_params}) do
+  def create(conn, post_params) do
     # with {:ok, %Post{} = post} <- Posts.create_post(post_params) do
     with {:ok, %Post{} = post} <- Posts.create_post(Map.put(post_params,"user_id",conn.assigns.current_user.id)) do
       # IO.inspect(conn)
