@@ -43,7 +43,7 @@ defmodule LockedInWeb.Router do
     post "/login", UserSessionController, :create
     delete "/logout", UserSessionController, :delete
     pipe_through :authenticted
-    get "/test", UserController, :test
+    # get "/test", UserController, :test
     get "/me", UserController, :show
     get "/posts/:post_id", PostController, :show
     post "/connect/:requestee_id", ConnectionController, :request

@@ -14,7 +14,7 @@ defmodule LockedIn.Accounts do
   ## Database getters
 
 
-  def test_feed(user) do
+  def get_feed(user) do
     user_id = user.id
 
     posts_with_count_query =
@@ -105,83 +105,83 @@ defmodule LockedIn.Accounts do
     Repo.all(final_query)
   end
 
-  def get_feed(user) do
-    user_id = user.id
+  # def get_feed(user) do
+  #   user_id = user.id
 
-    posts_with_count_query =
-      from p in Post,
-        left_join: l in Like,
-        on: l.post_id == p.id,
-        group_by: p.id,
-        select: %{p | like_count: count(l.id)}
+  #   posts_with_count_query =
+  #     from p in Post,
+  #       left_join: l in Like,
+  #       on: l.post_id == p.id,
+  #       group_by: p.id,
+  #       select: %{p | like_count: count(l.id)}
 
-    user_posts_query = from p in Post, where: p.user_id == ^user_id
+  #   user_posts_query = from p in Post, where: p.user_id == ^user_id
 
-    user_liked_posts_query =
-      from p in Post,
-        join: l in Like,
-        on: l.post_id == p.id,
-        where: l.user_id == ^user_id
-      # end
-    connection_posts_query =
-      from p in Post,
-        join: c in Connection,
-        on: c.requestee_id == p.user_id,
-        where: c.requester_id == ^user_id and c.has_accepted == true
+  #   user_liked_posts_query =
+  #     from p in Post,
+  #       join: l in Like,
+  #       on: l.post_id == p.id,
+  #       where: l.user_id == ^user_id
+  #     # end
+  #   connection_posts_query =
+  #     from p in Post,
+  #       join: c in Connection,
+  #       on: c.requestee_id == p.user_id,
+  #       where: c.requester_id == ^user_id and c.has_accepted == true
 
-    connection_liked_posts_query =
-      from p in Post,
-        join: l in Like,
-        on: l.post_id == p.id,
-        join: c in Connection,
-        on: c.requestee_id == l.user_id,
-        where: c.requester_id == ^user_id  and c.has_accepted == true
+  #   connection_liked_posts_query =
+  #     from p in Post,
+  #       join: l in Like,
+  #       on: l.post_id == p.id,
+  #       join: c in Connection,
+  #       on: c.requestee_id == l.user_id,
+  #       where: c.requester_id == ^user_id  and c.has_accepted == true
 
-    reverse_connection_posts_query =
-      from p in Post,
-        join: c in Connection,
-        on: c.requester_id == p.user_id,
-        where: c.requestee_id == ^user_id and c.has_accepted == true
+  #   reverse_connection_posts_query =
+  #     from p in Post,
+  #       join: c in Connection,
+  #       on: c.requester_id == p.user_id,
+  #       where: c.requestee_id == ^user_id and c.has_accepted == true
 
-    reverse_connection_liked_posts_query =
-      from p in Post,
-        join: l in Like,
-        on: l.post_id == p.id,
-        join: c in Connection,
-        on: c.requester_id == l.user_id,
-        where: c.requestee_id == ^user_id and c.has_accepted == true
+  #   reverse_connection_liked_posts_query =
+  #     from p in Post,
+  #       join: l in Like,
+  #       on: l.post_id == p.id,
+  #       join: c in Connection,
+  #       on: c.requester_id == l.user_id,
+  #       where: c.requestee_id == ^user_id and c.has_accepted == true
 
-    feed_query =
-      user_posts_query
-      |> union(^user_liked_posts_query)
-      |> union(^connection_posts_query)
-      |> union(^connection_liked_posts_query)
-      |> union(^reverse_connection_posts_query)
-      |> union(^reverse_connection_liked_posts_query)
+  #   feed_query =
+  #     user_posts_query
+  #     |> union(^user_liked_posts_query)
+  #     |> union(^connection_posts_query)
+  #     |> union(^connection_liked_posts_query)
+  #     |> union(^reverse_connection_posts_query)
+  #     |> union(^reverse_connection_liked_posts_query)
 
-    # feed_query =
-      # Ecto.assoc(user, :posts)
-      # |> union(^Ecto.assoc(user, :liked_posts))
-      # |> union(^Ecto.assoc(user, :connection_posts))
-      # |> union(^Ecto.assoc(user, :connection_liked_posts))
-      # |> union(^Ecto.assoc(user, :reverse_connection_posts))
-      # |> union(^Ecto.assoc(user, :reverse_connection_liked_posts))
-    final_query = from p in subquery(feed_query),
-      order_by: [desc: p.posted_at],
-      # limit: ^limit,
-      # offset: ^offset,
-      preload: [:user, :likes]
-    Repo.all(final_query)
-    |> IO.inspect(label: "feed_query")
-    # |> IO.inspect(label: "feed_query")
-    # IO.inspect(Ecto.assoc(user, :connection_liked_posts) |> where([p,l,c], c.has_accepted == true))
-    # Ecto.Adapters.SQL.to_sql(:all,Repo,IO.inspect(Ecto.assoc(user, :connection_liked_posts)))
-    # |>IO.inspect()
-    # IO.inspect(connection_liked_posts_query )
-    # Ecto.Adapters.SQL.to_sql(:all,Repo,IO.inspect(connection_liked_posts_query))
-    # |>IO.inspect()
-    # []
-  end
+  #   # feed_query =
+  #     # Ecto.assoc(user, :posts)
+  #     # |> union(^Ecto.assoc(user, :liked_posts))
+  #     # |> union(^Ecto.assoc(user, :connection_posts))
+  #     # |> union(^Ecto.assoc(user, :connection_liked_posts))
+  #     # |> union(^Ecto.assoc(user, :reverse_connection_posts))
+  #     # |> union(^Ecto.assoc(user, :reverse_connection_liked_posts))
+  #   final_query = from p in subquery(feed_query),
+  #     order_by: [desc: p.posted_at],
+  #     # limit: ^limit,
+  #     # offset: ^offset,
+  #     preload: [:user, :likes]
+  #   Repo.all(final_query)
+  #   |> IO.inspect(label: "feed_query")
+  #   # |> IO.inspect(label: "feed_query")
+  #   # IO.inspect(Ecto.assoc(user, :connection_liked_posts) |> where([p,l,c], c.has_accepted == true))
+  #   # Ecto.Adapters.SQL.to_sql(:all,Repo,IO.inspect(Ecto.assoc(user, :connection_liked_posts)))
+  #   # |>IO.inspect()
+  #   # IO.inspect(connection_liked_posts_query )
+  #   # Ecto.Adapters.SQL.to_sql(:all,Repo,IO.inspect(connection_liked_posts_query))
+  #   # |>IO.inspect()
+  #   # []
+  # end
   @doc """
   Gets a user by email.
 
