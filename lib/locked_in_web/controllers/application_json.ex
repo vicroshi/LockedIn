@@ -1,6 +1,11 @@
 defmodule LockedInWeb.ApplicationJSON do
   alias LockedIn.Jobs.Application
 
+
+  def index(%{applications: applications = %Ecto.Association.NotLoaded{}}) do
+    []
+  end
+
   @doc """
   Renders a list of applications.
   """

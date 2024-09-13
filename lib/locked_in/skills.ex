@@ -114,14 +114,16 @@ defmodule LockedIn.Skills do
       where: s.name in ^Enum.map(skills, & &1["name"])
       # select_merge: %{public: ^Enum.find_value(skills, fn skill -> if skill["name"] == ^s.name end)["public"]}
       )
-      |> Enum.map(fn s ->
-        public = Enum.find(skills, fn skill ->
-          skill["name"] == s.name
-        end)["public"]
-        # IO.inspect(public)
-        # Map.put(s, :public, public)
-        Skill.set_public(s, public)
-      end)
   end
 
+  def set_public_user_skills(skills) do
+    Enum.map(skills,fn s ->
+      public = Enum.find(skills, fn skill ->
+        skill["name"] == s.name
+      end)["public"]
+      # IO.inspect(public)
+      # Map.put(s, :public, public)
+      Skill.set_public(s, public)
+    end)
+  end
 end

@@ -713,7 +713,7 @@ defmodule LockedIn.Accounts do
     case user
     |> Repo.preload([:skills])
     |> Changeset.cast(attrs, [])
-    |> Changeset.put_assoc(:skills, Skills.insert_and_get_all_skills(attrs["skills"])|> IO.inspect())
+    |> Changeset.put_assoc(:skills, Skills.insert_and_get_all_skills(attrs["skills"]) |> Skills.set_public_user_skills |> IO.inspect())
     # |> IO.inspect(structs: false)
     # |> Changeset.put_assoc(:skills, Enum.map(attrs["skills"], fn skill ->
     #   %Skill{id: skill["id"], name: skill["name"], public: skill["public"]}

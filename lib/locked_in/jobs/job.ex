@@ -17,7 +17,7 @@ defmodule LockedIn.Jobs.Job do
   @doc false
   def changeset(job_offer, attrs) do
     job_offer
-    |> cast(attrs, [:position,:company_name, :location, :description])
+    |> cast(attrs, [:user_id,:position,:company_name, :location, :description])
     |> validate_required([:position, :location, :company_name])
   end
 end

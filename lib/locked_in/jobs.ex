@@ -8,7 +8,7 @@ defmodule LockedIn.Jobs do
   alias LockedIn.Repo
 
   alias LockedIn.Jobs.Job
-
+  alias LockedIn.Skills
   @doc """
   Returns the list of jobs.
 
@@ -50,10 +50,14 @@ defmodule LockedIn.Jobs do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_job(attrs \\ %{}) do
+  def create_job(user_id, attrs \\ %{}) do
+    # user
     %Job{}
-    |> Job.changeset(attrs)
-    |> Changeset.cast_assoc(:skills)
+    # |> Ecto.build_assoc(:jobs, attrs)
+    # |> Repo.preload(:skills)
+    |> Job.changeset(Map.put(attrs, "user_id", user_id))
+    |> Changeset.put_assoc(:skills, Skills.insert_and_get_all_skills(attrs["skills"]))
+    |> IO.inspect()
     |> Repo.insert()
   end
 

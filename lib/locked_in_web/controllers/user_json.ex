@@ -47,6 +47,16 @@ defmodule LockedInWeb.UserJSON do
     }
   end
 
+  defp data(%LockedIn.Accounts.UserEducation{} = education) do
+    %{
+      id: education.id,
+      school: education.school,
+      degree: education.degree,
+      start_date: education.start_date,
+      end_date: education.end_date,
+      description: education.description
+    }
+  end
 
 
   # def test(%{user: user}) do
@@ -62,7 +72,7 @@ defmodule LockedInWeb.UserJSON do
       phone: user.phone,
       education: for(education <- user.education, do: data(education)),
       experience: for(experience <- user.experience, do: data(experience)),
-      skills: for(skill <- user.skills, do: %{"name" => skill.name})
+      skills: for(skill <- user.skills, do: %{"name" => skill.name, "public" => skill.public}),
     }
   end
 

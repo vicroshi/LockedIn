@@ -1,26 +1,48 @@
 defmodule LockedInWeb.JobJSON do
-  alias LockedIn.Jobs.Job
-
+  alias LockedIn.Jobs.{Job,Application}
+  alias LockedIn.Skills.Skill
   @doc """
   Renders a list of jobs.
   """
   def index(%{jobs: jobs}) do
-    %{data: for(job_offer <- jobs, do: data(job_offer))}
+    %{data: for(job <- jobs, do: data(job))}
   end
 
   @doc """
-  Renders a single job_offer.
+  Renders a single job.
   """
-  def show(%{job_offer: job_offer}) do
-    %{data: data(job_offer)}
+  def show(%{job: job}) do
+    %{data: data(job)}
   end
 
-  defp data(%Job{} = job_offer) do
+  defp data(%Job{} = job) do
+    IO.inspect(job)
     %{
-      id: job_offer.id,
-      title: job_offer.title,
-      skills: job_offer.skills,
-      description: job_offer.description
+      id: job.id,
+      position: job.position,
+      skills: for(skill <- job.skills, do: LockedInWeb.SkillJSON.show(%{skill: skill})),
+      applicaitons: LockedInWeb.ApplicationJSON.index(%{applications: job.applications}),
+      description: job.description,
+      company_name: job.company_name,
+      user_id: job.user_id,
+      user_fname: job.user.firstname,
+      user_lname: job.user.lastname,
     }
   end
+
+  defp data(%Application{} = application) do
+    %{
+      user_id: application.applicant.id,
+      # job_id: application.job_id,
+      user_fname: application.applicant.firstname,
+      user_lname: application.applicant.lastname,
+    }
+  end
+
+  # defp data(%Skill{} = skill) do
+  #   %{
+  #     id: skill.id,
+  #     name: skill.name,
+  #   }
+  # end
 end

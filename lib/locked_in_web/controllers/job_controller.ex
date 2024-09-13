@@ -3,7 +3,7 @@ defmodule LockedInWeb.JobController do
 
   alias LockedIn.Jobs
   alias LockedIn.Jobs.Job
-
+  import LockedIn.Helpers
   action_fallback LockedInWeb.FallbackController
 
   def index(conn, _params) do
@@ -12,11 +12,11 @@ defmodule LockedInWeb.JobController do
   end
 
   def create(conn, %{"job" => job_params}) do
-    with {:ok, %Job{} = job} <- Jobs.create_job(job_params) do
+    with {:ok, %Job{} = job} <- Jobs.create_job(conn.assigns.current_user.id,job_params) do
       conn
       |> put_status(:created)
       # |> put_resp_header("location", ~p"/api/jobs/#{job}")
-      |> render(:show, job: job)
+      |> render(:show, job: job |> with_assoc([:user]))
     end
   end
 
