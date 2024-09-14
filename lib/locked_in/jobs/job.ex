@@ -11,6 +11,7 @@ defmodule LockedIn.Jobs.Job do
     many_to_many :skills, LockedIn.Skills.Skill, join_through: "job_skills", on_replace: :delete
     belongs_to :user, LockedIn.Accounts.User
     has_many :applications, LockedIn.Jobs.Application, foreign_key: :job_id
+    field :matching_skills, :integer, virtual: true, default: nil
     timestamps(type: :utc_datetime, updated_at: false)
   end
 

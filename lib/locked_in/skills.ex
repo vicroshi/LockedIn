@@ -116,10 +116,10 @@ defmodule LockedIn.Skills do
       )
   end
 
-  def set_public_user_skills(skills) do
+  def set_public_user_skills(skills, uskills) do
     Enum.map(skills,fn s ->
-      public = Enum.find(skills, fn skill ->
-        skill["name"] == s.name
+      public = Enum.find(uskills, fn uskill ->
+        uskill["name"] == s.name
       end)["public"]
       # IO.inspect(public)
       # Map.put(s, :public, public)

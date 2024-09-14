@@ -11,6 +11,7 @@ defmodule LockedIn.Accounts.User do
     field :hashed_password, :string, virtual: true, redact: true #todo: remove field
     field :firstname, :string
     field :lastname, :string
+    field :pfp, :string
     field :phone, :string
     field :current_password, :string, virtual: true, redact: true #todo: remove field
     field :confirmed_at, :utc_datetime #todo: remove field
@@ -199,5 +200,10 @@ defmodule LockedIn.Accounts.User do
     else
       add_error(changeset, :current_password, "is not valid")
     end
+  end
+
+  def get_user_pfp(user,filename) do
+    rel_path = Path.join(to_string(user.id),Enum.join([user.firstname,user.lastname], "_") <> Path.extname(filename))
+    %{fullpath: Path.join(LockedIn.upload_dir,rel_path), pfp: rel_path}
   end
 end

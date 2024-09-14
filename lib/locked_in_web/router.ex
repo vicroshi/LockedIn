@@ -64,8 +64,8 @@ defmodule LockedInWeb.Router do
     end
     get "/notifications", UserController, :notifications
     patch "/notifications", UserController, :read_notifications
-    resources "/jobs", JobController, only: [:create, :show, :index], param: "job_id"
     get "/jobs/feed", JobController, :feed
+    resources "/jobs", JobController, only: [:create, :show, :index], param: "job_id"
     scope "/jobs/:job_id" do
       resources "/applications", ApplicationController, only: [:create, :show, :index, :delete], param: "application_id"
     end

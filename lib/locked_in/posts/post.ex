@@ -12,7 +12,7 @@ defmodule LockedIn.Posts.Post do
     belongs_to :user, LockedIn.Accounts.User
     has_many :likes, LockedIn.Posts.Like
     has_many :users_liked, through: [:likes, :user]
-    has_many :comments, LockedIn.Posts.Comment, preload_order: [desc: :inserted_at]
+    has_many :comments, LockedIn.Posts.Comment, preload_order: [asc: :inserted_at]
     has_one :notification, LockedIn.Accounts.Notification
     timestamps(type: :utc_datetime, inserted_at: :posted_at, inserted_at_source: :inserted_at)
   end

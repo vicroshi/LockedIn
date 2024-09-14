@@ -5,6 +5,9 @@ defmodule LockedIn.Accounts do
 
   import Ecto.Query, warn: false
   # alias LockedIn.Skills.Skill
+  alias Inspect.LockedIn.Accounts.User
+  alias Phoenix.LiveViewTest.Upload
+  alias Ecto.Multi
   alias LockedIn.Skills
   alias LockedIn.Accounts.UserSkill
   alias Ecto.Changeset
@@ -715,29 +718,84 @@ defmodule LockedIn.Accounts do
 
   def update_profile(user, attrs) do
     # update association skills
-    case user
-    |> Repo.preload([:skills])
-    |> Changeset.cast(attrs, [])
-    |> Changeset.put_assoc(:skills, Skills.insert_and_get_all_skills(attrs["skills"]) |> Skills.set_public_user_skills |> IO.inspect())
+    Multi.new()
+      |> Multi.run(:pfp, fn _repo, _changes ->
+          case attrs["pfp"] do
+            %Plug.Upload{} = pfp ->
+              %{fullpath: filepath, pfp: relpath } = User.get_user_pfp(user, pfp.filename)
+              # |> IO.inspect()
+              filepath
+              |> Path.dirname()
+              |> File.mkdir_p!()
+              File.cp!(pfp.path, filepath)
+              {:ok, relpath}
+              _ -> {:ok, nil}
+          end
+      end)
+      |> Multi.run(:skills, fn _repo, _changes ->
+          skills = Skills.insert_and_get_all_skills(attrs["skills"])
+          |> Skills.set_public_user_skills(attrs["skills"]) |> IO.inspect()
+          if skills != nil and skills != [] do
+            {:ok, skills}
+          else
+            {:error, []}
+          end
+      end)
+      |> Multi.update(:user, fn %{skills: skills, pfp: pfp} ->
+          user
+            |> Repo.preload(:skills)
+            |> Changeset.cast(attrs, [])
+            |> Changeset.put_assoc(:skills, skills)
+            |> Changeset.cast_embed(:experience)
+            |> Changeset.put_change(:pfp, pfp)
+          end)
+      |> Multi.run(:user_skills, fn _repo, %{user: user} ->
+          IO.inspect(user.skills)
+           Enum.reduce(user.skills,[], fn skill,acc ->
+             [%{user_id: user.id, skill_id: skill.id, public: skill.public} | acc]
+           end)
+           |>
+           case do
+            [] -> {:error, []}
+            user_skills -> {:ok, user_skills}
+           end
+      end)
+      |> Multi.update(:uskills_update, fn %{user_skills: user_skills} ->
+          user
+           |> Repo.preload([:user_skills])
+           |> Changeset.change()
+           |> Changeset.put_assoc(:user_skills, user_skills)
+         end)
+      # |>
+      |> Repo.transaction()
+      |> case do
+        {:ok, %{user: user}} -> {:ok, user}
+        {:error, _} -> {:error, user}
+      end
+
+    # case user
+    # |> Repo.preload([:skills])
+    # |> Changeset.cast(attrs, [])
+    # |> Changeset.put_assoc(:skills, Skills.insert_and_get_all_skills(attrs["skills"]) |> Skills.set_public_user_skills(attrs["skills"]) |> IO.inspect())
     # |> IO.inspect(structs: false)
     # |> Changeset.put_assoc(:skills, Enum.map(attrs["skills"], fn skill ->
     #   %Skill{id: skill["id"], name: skill["name"], public: skill["public"]}
     # end)|> IO.inspect())
-    |> Changeset.cast_embed(:experience)
-    |> Repo.update()
-    do
-     {:ok, user} ->
+    # |> Changeset.cast_embed(:experience)
+    # |> Repo.update()
+    # do
+    #  {:ok, user} ->
         # update join table association user_skills
-        user_skills = Enum.reduce(user.skills,[], fn skill,acc ->
-          [%{user_id: user.id, skill_id: skill.id, public: skill.public} | acc]
-        end)
-        IO.inspect(user.skills)
-        Changeset.change(user|>Repo.preload([:user_skills]))
-        |> Changeset.put_assoc(:user_skills, user_skills)
-        |> Repo.update()
-      {:error, changeset} ->
-        {:error, changeset}
-    end
+        # user_skills = Enum.reduce(user.skills,[], fn skill,acc ->
+          # [%{user_id: user.id, skill_id: skill.id, public: skill.public} | acc]
+        # end)
+        # IO.inspect(user.skills)
+        # Changeset.change(user|>Repo.preload([:user_skills]))
+        # |> Changeset.put_assoc(:user_skills, user_skills)
+        # |> Repo.update()
+      # {:error, changeset} ->
+        # {:error, changeset}
+    # end
   end
 
   def get_notification_by_user(user_id, notif_id) do

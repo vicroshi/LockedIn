@@ -33,7 +33,10 @@ defmodule LockedInWeb.PostController do
 
   def show(conn, %{"post_id" => _id}) do
     # post = Posts.get_post!(id)
-    render(conn, :show, post: conn.assigns.post |> Posts.with_counts())
+    render(conn, :show,
+      post: conn.assigns.post
+      |> Posts.with_counts
+      |> Posts.with_liked(conn.assigns.current_user.id))
   end
 
   def update(conn, %{"id" => id, "post" => post_params}) do

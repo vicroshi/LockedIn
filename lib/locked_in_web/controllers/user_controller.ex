@@ -45,8 +45,13 @@ defmodule LockedInWeb.UserController do
     render(conn, :show, user: conn.assigns.current_user)
   end
 
-  def update(conn, %{"skills" => _skills, "experience" => _experience, "education" => _education} = profile_params) do
-    IO.inspect(profile_params)
+  def update(conn, %{"skills" => skills, "experience" => experience, "education" => education, "pfp" => _pfp} = profile_params) do
+    profile_params = profile_params
+    |>
+    Map.put("skills", Jason.decode!(skills))
+    |> Map.put("experience", Jason.decode!(experience))
+    |> Map.put("education", Jason.decode!(education))
+
     case Accounts.update_profile(conn.assigns.current_user, profile_params) do
       {:ok, user} ->
         render(conn, :profile, user: user)
@@ -93,7 +98,7 @@ defmodule LockedInWeb.UserController do
   end
 
   def test(conn, _params) do
-    
+
     feed = Accounts.test_feed(conn.assigns.current_user)
     conn
     |> put_view(LockedInWeb.PostJSON)

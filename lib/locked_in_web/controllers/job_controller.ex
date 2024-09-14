@@ -1,8 +1,8 @@
 defmodule LockedInWeb.JobController do
   use LockedInWeb, :controller
 
-  alias LockedIn.Jobs
   alias LockedIn.Jobs.Job
+  alias LockedIn.Jobs
   import LockedIn.Helpers
   action_fallback LockedInWeb.FallbackController
 
@@ -41,8 +41,8 @@ defmodule LockedInWeb.JobController do
   end
 
   def feed(conn, _params) do
-    jobs = Jobs.list_jobs()
-    render(conn, :feed, jobs: jobs |> with_assoc([:user, :skills, :applications]))
+    jobs = Jobs.jobs_feed(conn.assigns.current_user.id)
+    render(conn, :index, jobs: jobs |> with_assoc([:user, :skills]))
   end
 
 end

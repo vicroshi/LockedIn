@@ -129,6 +129,11 @@ defmodule LockedIn.Posts do
     Post.changeset(post, attrs)
   end
 
+  def with_liked(post, user_id) do
+    post
+    |> Map.put(:liked, Repo.exists?(from l in Like, where: l.post_id == ^post.id and l.user_id == ^user_id))
+  end
+
   def with_counts(post) do
     post
     |> Map.put(:like_count, Repo.aggregate(Like |> where(post_id: ^post.id), :count))

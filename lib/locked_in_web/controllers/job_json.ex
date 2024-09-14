@@ -27,6 +27,7 @@ defmodule LockedInWeb.JobJSON do
       user_id: job.user_id,
       user_fname: job.user.firstname,
       user_lname: job.user.lastname,
+      matching_skills: job.matching_skills,
     }
   end
 

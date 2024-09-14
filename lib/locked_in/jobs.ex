@@ -4,6 +4,8 @@ defmodule LockedIn.Jobs do
   """
 
   import Ecto.Query, warn: false
+  alias LockedIn.Accounts
+  alias LockedIn.Accounts.Connection
   alias Ecto.Changeset
   alias LockedIn.Repo
 
@@ -27,7 +29,36 @@ defmodule LockedIn.Jobs do
   end
 
   def jobs_feed(user_id) do
-    []
+    connections_jobs_query =
+      from j in Job,
+        join: c in Connection,
+        on: c.requestee_id == j.user_id and c.requester_id == ^user_id and c.has_accepted == true,
+        # where: c.requester_id == ^user_id  and c.has_accepted == true,
+        distinct: true,
+        select: %{j | matching_skills: 0}
+    reverse_connections_jobs_query =
+      from j in Job,
+        join: c in Connection,
+        on: c.requester_id == j.user_id and c.requestee_id == ^user_id and c.has_accepted == true,
+        # where: c.requestee_id == ^user_id  and c.has_accepted == true,
+        distinct: true,
+        select: %{j | matching_skills: 0}
+    # Repo.all(from j in subquery(connections_jobs_query |> union(^reverse_connections_jobs_query)),
+              # order_by: [desc: j.inserted_at])
+    skills_intersection_query =
+      from j in Job,
+        join: js in "job_skills",
+        on: js.job_id == j.id,
+        join: us in Accounts.UserSkill,
+        on: us.skill_id == js.skill_id and us.public == true,
+        where: us.user_id == ^user_id,
+        group_by: j.id,
+        select: %{j | matching_skills: count(js.skill_id)}
+        # select: j
+    connections_jobs = Repo.all(connections_jobs_query |> union_all(^reverse_connections_jobs_query))
+    skills_intersection = Repo.all skills_intersection_query
+    Enum.uniq_by(skills_intersection ++ connections_jobs, & &1.id)
+    |> Enum.sort_by(& &1.inserted_at,  {:desc, DateTime})
   end
 
   @doc """
