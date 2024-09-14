@@ -204,6 +204,7 @@ defmodule LockedIn.Accounts.User do
 
   def get_user_pfp(user,filename) do
     rel_path = Path.join(to_string(user.id),Enum.join([user.firstname,user.lastname], "_") <> Path.extname(filename))
-    %{fullpath: Path.join(LockedIn.upload_dir,rel_path), pfp: rel_path}
+    url_path = Path.join("/uploads",rel_path)
+    %{fullpath: Path.join(LockedIn.upload_dir,rel_path), url_path: url_path}
   end
 end

@@ -722,19 +722,26 @@ defmodule LockedIn.Accounts do
       |> Multi.run(:pfp, fn _repo, _changes ->
           case attrs["pfp"] do
             %Plug.Upload{} = pfp ->
-              %{fullpath: filepath, pfp: relpath } = User.get_user_pfp(user, pfp.filename)
+              %{fullpath: filepath, url_path: url_path } = User.get_user_pfp(user, pfp.filename)
               # |> IO.inspect()
               filepath
               |> Path.dirname()
               |> File.mkdir_p!()
-              File.cp!(pfp.path, filepath)
-              {:ok, relpath}
-              _ -> {:ok, nil}
+              try do
+                # File.cp!(pfp.path, filepath)
+                File.copy!(pfp.path, filepath)
+              catch
+                _->
+                {:error, nil} |> IO.inspect()
+              end
+              {:ok, url_path}
+              "null" -> {:ok, nil}
+              pfp -> {:ok, pfp}
           end
       end)
       |> Multi.run(:skills, fn _repo, _changes ->
           skills = Skills.insert_and_get_all_skills(attrs["skills"])
-          |> Skills.set_public_user_skills(attrs["skills"]) |> IO.inspect()
+          |> Skills.set_public_user_skills(attrs["skills"])
           if skills != nil and skills != [] do
             {:ok, skills}
           else
@@ -742,6 +749,7 @@ defmodule LockedIn.Accounts do
           end
       end)
       |> Multi.update(:user, fn %{skills: skills, pfp: pfp} ->
+        IO.inspect(pfp)
           user
             |> Repo.preload(:skills)
             |> Changeset.cast(attrs, [])
