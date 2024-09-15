@@ -7,7 +7,7 @@ defmodule LockedInWeb.ChatController do
   action_fallback LockedInWeb.FallbackController
 
   def index(conn, _params) do
-    chats = Chats.list_chats()
+    chats = Chats.list_chats(conn.assigns.current_user)
     render(conn, :index, chats: chats)
   end
 
@@ -16,7 +16,7 @@ defmodule LockedInWeb.ChatController do
       conn
       |> put_status(:created)
       |> put_resp_header("location", ~p"/api/chats/#{chat}")
-      |> render(:show, chat: chat)
+      |> render(:show, chat: chat, user: conn.assigns.current_user)
     end
   end
 

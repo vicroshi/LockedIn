@@ -1,23 +1,40 @@
-defmodule LockedInWeb.MessageJSON do
-  alias LockedIn.Chats.Message
+defmodule LockedInWeb.ChatJSON do
+  alias LockedIn.Chats.Chat
 
   @doc """
-  Renders a list of messages.
+  Renders a list of chats.
   """
-  def index(%{messages: messages}) do
-    %{data: for(message <- messages, do: data(message))}
+  def index(%{chats: chats, current_user: user}) do
+    %{data: for(chat <- chats, do: data(chat, user))}
   end
 
   @doc """
-  Renders a single message.
+  Renders a single chat.
   """
-  def show(%{message: message}) do
-    %{data: data(message)}
+  def show(%{chat: chat}) do
+    %{data: data(chat)}
   end
 
-  defp data(%Message{} = message) do
+  def show(%{chat: chat, user: user}) do
+    %{data: data(chat, user)}
+  end
+
+  defp data(chat, user) do
+    other_user = if user.id == chat.user1_id do chat.user2 else chat.user1 end
     %{
-      id: message.id
+      id: chat.id,
+      user_id: other_user.id,
+      user_fname: other_user.firstname,
+      user_lname: other_user.lastname,
+    }
+  end
+
+  defp data(%Chat{} = chat) do
+    %{
+      id: chat.id,
+      user1_id: chat.user1_id,
+      user2_id: chat.user2_id,
+      # latest_messag: LockedInWeb.MessageJSON.show(%{message: chat.latest_message})
     }
   end
 end

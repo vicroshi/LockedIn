@@ -17,7 +17,11 @@ defmodule LockedInWeb.MessageJSON do
 
   defp data(%Message{} = message) do
     %{
-      id: message.id
+      id: message.id,
+      content: message.content,
+      sender_id: message.sender_id,
+      receiver_id: message.receiver_id,
+      chat_id: message.chat_id,
     }
   end
 end

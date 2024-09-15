@@ -7,13 +7,14 @@ defmodule LockedIn.Chats.Message do
     field :is_read, :boolean, default: false
     belongs_to :sender, LockedIn.Accounts.User
     belongs_to :receiver, LockedIn.Accounts.User
+    belongs_to :chat, LockedIn.Chats.Chat
     timestamps(type: :utc_datetime)
   end
 
   @doc false
   def changeset(message, attrs) do
     message
-    |> cast(attrs, [:content,:chat_id, :receiver_id, :sender_id])
+    |> cast(attrs, [:content, :receiver_id, :sender_id])
     |> validate_required([:sender_id, :chat_id, :receiver_id, :content])
   end
 end

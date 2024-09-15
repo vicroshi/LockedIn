@@ -6,7 +6,17 @@ defmodule LockedIn.Chats do
   alias Ecto.Multi
 
 
-  def list_chats(user_id) do
+  def list_chats(user) do
+    # user
+    # |> Repo.preload(:chats)
+    # |> Map.get(:chats)
+    # |> IO.inspect()
+    Repo.all(
+      from c in Chat,
+      preload: [:latest_message, :user1, :user2],
+      where: c.user1_id == ^user.id or c.user2_id == ^user.id
+    )
+    |> IO.inspect()
   end
 
   def get_chat_by_users(user1_id,user2_id)  do
@@ -68,19 +78,25 @@ defmodule LockedIn.Chats do
   """
   def create_message(user1_id, attrs \\ %{}) do
     Multi.new()
-    |> Multi.insert(:chat, Chat.changeset(%Chat{}, Map.put(attrs, "user1_id", user1_id) |> IO.inspect()), on_conflict: :nothing)
-    # |> Multi.insert(:message, fn %{chat: chat} ->
-    #   Ecto.build_assoc(chat, :messages, attrs)
-    #   |> Message.changeset(attrs["message"]
-    #                        |> Map.put("sender_id", user1_id)
-    #                        |> Map.put("receiver_id", attrs["user2_id"]))
-    # end)
+    |> Multi.insert(:chat, Chat.changeset(%Chat{},
+        Map.put(attrs, "user1_id", user1_id) |> IO.inspect()),
+        conflict_target: {:unsafe_fragment, "(LEAST(\"user1_id\", \"user2_id\"), GREATEST(\"user1_id\", \"user2_id\"))"},
+         on_conflict: {:replace, [:user1_id, :user2_id]},
+         returning: true)
+    |> Multi.insert(:message, fn %{chat: chat} ->
+      IO.inspect(chat)
+      Ecto.build_assoc(chat, :messages)
+      |> IO.inspect()
+      |> Message.changeset(attrs["message"]
+                           |> Map.put("sender_id", user1_id)
+                           |> Map.put("receiver_id", attrs["user2_id"]))
+    end)
     |> Repo.transaction()
     |> case  do
       {:error, _, changeset, _} ->
         {:error, changeset}
-      {:ok, %{chat: chat}} ->
-        {:ok, chat} |> IO.inspect()
+      {:ok, %{message: message}} ->
+        {:ok, message} |> IO.inspect()
     end
   end
 

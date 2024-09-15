@@ -6,8 +6,11 @@ defmodule LockedIn.Chats.Chat do
     belongs_to :user1, LockedIn.Accounts.User
     belongs_to :user2, LockedIn.Accounts.User
     has_many :messages, LockedIn.Chats.Message, preload_order: [desc: :inserted_at]
-    has_one :latest_message, LockedIn.Chats.Message, where: [chat_id: {:fragment, "(inserted_at) = (SELECT MAX(`messages`.inserted_at) FROM messages WHERE `messages`.chat_id = ?)"}]
-    timestamps(type: :utc_datetime)
+    has_one :latest_message,
+    LockedIn.Chats.Message,
+    where: [chat_id:
+    {:fragment, "(m0.\"inserted_at\") = (SELECT MAX(\"messages\".inserted_at) FROM messages WHERE \"messages\".chat_id = ?)"}]
+    # timestamps(type: :utc_datetime)
   end
 
   @doc false
