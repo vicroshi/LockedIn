@@ -62,6 +62,12 @@ defmodule LockedInWeb.Router do
       get "/", NotificationController, :index
       patch "/:notification_id", NotificationController, :update
     end
+    scope "/chats"  do
+      get "/", MessageController, :index
+      post "/", MessageController, :create
+      get "/:chat_id", MessageController, :show
+      post "/:chat_id", MessageController, :send_message
+    end
     get "/notifications", UserController, :notifications
     patch "/notifications", UserController, :read_notifications
     get "/jobs/feed", JobController, :feed
