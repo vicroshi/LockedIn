@@ -613,8 +613,27 @@ defmodule LockedIn.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_connection(%{"requester_id" => requester_id, "requestee_id" => requestee_id}) do
-      Repo.get_by(Connection, requester_id: requester_id, requestee_id: requestee_id)
+
+  def get_connection(user_id, other_id) do
+    Repo.one(
+        from c in Connection,
+        where: c.requester_id == ^user_id and c.requestee_id == ^other_id,
+        or_where: c.requester_id == ^other_id and c.requestee_id == ^user_id
+      )
+  end
+
+
+  def get_status_with_connection(user_id, other_id) do
+    case get_connection(user_id, other_id) do
+      nil -> {:not_connected, nil}
+      connection -> case connection.has_accepted do
+        true -> {:connected, connection}
+        false -> case connection.requester_id == user_id do
+          true -> {:request_sent, connection}
+          false -> {:request_received, connection}
+        end
+      end
+    end
   end
 
   def get_connection_requests(user_id) do
@@ -814,6 +833,10 @@ defmodule LockedIn.Accounts do
     notification
     |> Notification.read()
     |> Repo.update()
+  end
+
+  def connection_status(user_id, other_id) do
+    case
   end
 
 end
