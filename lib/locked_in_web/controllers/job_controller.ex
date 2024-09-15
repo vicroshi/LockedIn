@@ -7,7 +7,7 @@ defmodule LockedInWeb.JobController do
   action_fallback LockedInWeb.FallbackController
 
   def index(conn, _params) do
-    jobs = Jobs.list_jobs()
+    jobs = conn.assigns.current_user |> with_assoc([:jobs]) |> Map.get(:jobs)
     render(conn, :index, jobs: jobs |> with_assoc([:user, :skills, :applications]))
   end
 
