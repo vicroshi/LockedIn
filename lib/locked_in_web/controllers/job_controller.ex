@@ -32,7 +32,7 @@ defmodule LockedInWeb.JobController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
+  def delete(conn, %{"job_id" => id}) do
     job = Jobs.get_job!(id)
 
     with {:ok, %Job{}} <- Jobs.delete_job(job) do
