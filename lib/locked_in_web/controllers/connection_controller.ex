@@ -32,8 +32,8 @@ defmodule LockedInWeb.ConnectionController do
   end
 
   def accept(conn, %{"requester_id" => requester_id}) do
-    connection_params = %{"requester_id" => requester_id,"requestee_id" => conn.assigns.current_user.id}
-    connection = Accounts.get_connection(connection_params)
+    # connection_params = %{"requester_id" => requester_id,"requestee_id" => conn.assigns.current_user.id}
+      connection = Accounts.get_request(requester_id, conn.assigns.current_user.id)
     if is_nil(connection) do
       {:error, :not_found}
     else

@@ -4,6 +4,27 @@ defmodule LockedIn.Chats do
   alias Ecto.Changeset
   alias LockedIn.Repo
   alias Ecto.Multi
+
+
+  def list_chats(user_id) do
+  end
+
+  def get_chat_by_users(user1_id,user2_id)  do
+    Repo.one(
+      from c in Chat,
+      where: fragment("LEAST(?, ?) = LEAST(user1_id, user2_id)", ^user1_id, ^user2_id),
+      where: fragment("GREATEST(?, ?) = GREATEST(user1_id, user2_id)", ^user1_id, ^user2_id)
+    )
+  end
+
+  def create_chat(user1, attrs) do
+    %Chat{user1_id: user1.id}
+    |> Chat.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def get_chat!(id), do: Repo.get!(Chat, id)
+
   @doc """
   Returns the list of messages.
 
@@ -45,10 +66,22 @@ defmodule LockedIn.Chats do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_message(attrs \\ %{}) do
-    %Message{}
-    |> Message.changeset(attrs)
-    |> Repo.insert()
+  def create_message(user1_id, attrs \\ %{}) do
+    Multi.new()
+    |> Multi.insert(:chat, Chat.changeset(%Chat{}, Map.put(attrs, "user1_id", user1_id) |> IO.inspect()), on_conflict: :nothing)
+    # |> Multi.insert(:message, fn %{chat: chat} ->
+    #   Ecto.build_assoc(chat, :messages, attrs)
+    #   |> Message.changeset(attrs["message"]
+    #                        |> Map.put("sender_id", user1_id)
+    #                        |> Map.put("receiver_id", attrs["user2_id"]))
+    # end)
+    |> Repo.transaction()
+    |> case  do
+      {:error, _, changeset, _} ->
+        {:error, changeset}
+      {:ok, %{chat: chat}} ->
+        {:ok, chat} |> IO.inspect()
+    end
   end
 
   @doc """

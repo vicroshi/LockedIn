@@ -1,7 +1,7 @@
-defmodule LockedInWeb.ChatControllerTest do
+defmodule LockedInWeb.MessageControllerTest do
   use LockedInWeb.ConnCase
 
-  import LockedIn.AccountsFixtures
+  import LockedIn.ChatsFixtures
 
   alias LockedIn.Chats.Message
 

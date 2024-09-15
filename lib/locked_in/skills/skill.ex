@@ -5,7 +5,7 @@ defmodule LockedIn.Skills.Skill do
   schema "skills" do
     field :name, :string
     many_to_many :users, LockedIn.Accounts.User, join_through: "user_skills"
-    field :public , :boolean, default: false, virtual: true
+    field :public , :boolean, default: true, virtual: true
   end
 
   @doc false

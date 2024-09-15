@@ -13,7 +13,7 @@ defmodule LockedIn.Chats.Message do
   @doc false
   def changeset(message, attrs) do
     message
-    |> cast(attrs, [:content])
-    |> validate_required([:sender_id, :receiver_id, :content])
+    |> cast(attrs, [:content,:chat_id, :receiver_id, :sender_id])
+    |> validate_required([:sender_id, :chat_id, :receiver_id, :content])
   end
 end

@@ -62,8 +62,8 @@ defmodule LockedInWeb.Router do
       get "/", NotificationController, :index
       patch "/:notification_id", NotificationController, :update
     end
-    resources "/chats", ChatController, only: [:create, :show, :index, :delete], param: "chat_id"
-    scope "/chats/:chat_id" do
+    resources "/chats", ChatController, only: [:create, :show, :index, :delete], param: "user2_id"
+    scope "/chats/:user2_id" do
       resources "/messages", MessageController, only: [:create, :index], param: "message_id"
     end
     get "/notifications", UserController, :notifications

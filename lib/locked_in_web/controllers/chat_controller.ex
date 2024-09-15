@@ -1,42 +1,42 @@
 defmodule LockedInWeb.ChatController do
   use LockedInWeb, :controller
 
-  alias LockedIn.Accounts
+  alias LockedIn.Chats
   alias LockedIn.Chats.{Chat, Message}
 
   action_fallback LockedInWeb.FallbackController
 
   def index(conn, _params) do
-    messages = Accounts.list_messages()
-    render(conn, :index, messages: messages)
+    chats = Chats.list_chats()
+    render(conn, :index, chats: chats)
   end
 
-  def create(conn, %{"message" => message_params}) do
-    with {:ok, %Message{} = message} <- Accounts.create_message(message_params) do
+  def create(conn, %{"chat" => chat_params}) do
+    with {:ok, %Chat{} = chat} <- Chats.create_chat(conn.assigns.current_user.id, chat_params) do
       conn
       |> put_status(:created)
-      |> put_resp_header("location", ~p"/api/messages/#{message}")
-      |> render(:show, message: message)
+      |> put_resp_header("location", ~p"/api/chats/#{chat}")
+      |> render(:show, chat: chat)
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    message = Accounts.get_message!(id)
-    render(conn, :show, message: message)
+  def show(conn, %{"chat_id" => chat_id}) do
+    chat = Chats.get_chat!(chat_id)
+    render(conn, :show, chat: chat)
   end
 
-  def update(conn, %{"id" => id, "message" => message_params}) do
-    message = Accounts.get_message!(id)
+  def update(conn, %{"chat_id" => chat_id, "chat" => chat_params}) do
+    chat = Chats.get_chat!(chat_id)
 
-    with {:ok, %Message{} = message} <- Accounts.update_message(message, message_params) do
-      render(conn, :show, message: message)
+    with {:ok, %Chat{} = chat} <- Chats.update_chat(chat, chat_params) do
+      render(conn, :show, chat: chat)
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    message = Accounts.get_message!(id)
+  def delete(conn, %{"chat_id" => chat_id}) do
+    chat = Chats.get_chat!(chat_id)
 
-    with {:ok, %Message{}} <- Accounts.delete_message(message) do
+    with {:ok, %Chat{}} <- Chats.delete_chat(chat) do
       send_resp(conn, :no_content, "")
     end
   end

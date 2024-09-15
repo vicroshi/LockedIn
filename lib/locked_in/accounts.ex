@@ -613,6 +613,9 @@ defmodule LockedIn.Accounts do
       ** (Ecto.NoResultsError)
 
   """
+  def get_request(requester_id, requestee_id) do
+    Repo.get_by(Connection, requester_id: requester_id, requestee_id: requestee_id)
+  end
 
   def get_connection(user_id, other_id) do
     Repo.one(
