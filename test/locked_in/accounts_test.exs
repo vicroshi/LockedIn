@@ -561,7 +561,7 @@ defmodule LockedIn.AccountsTest do
   end
 
   describe "messages" do
-    alias LockedIn.Accounts.Message
+    alias LockedIn.Chats.Message
 
     import LockedIn.AccountsFixtures
 

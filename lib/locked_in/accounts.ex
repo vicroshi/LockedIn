@@ -621,7 +621,7 @@ defmodule LockedIn.Accounts do
         or_where: c.requester_id == ^other_id and c.requestee_id == ^user_id
       )
   end
-  
+
 
   def get_status_with_connection(user_id, other_id) do
     case get_connection(user_id, other_id) do
@@ -759,12 +759,17 @@ defmodule LockedIn.Accounts do
           end
       end)
       |> Multi.run(:skills, fn _repo, _changes ->
-          skills = Skills.insert_and_get_all_skills(attrs["skills"])
-          |> Skills.set_public_user_skills(attrs["skills"])
-          if skills != nil and skills != [] do
-            {:ok, skills}
+        IO.inspect(attrs["skills"], label: "attr skills")
+          if attrs["skills"] == [] do
+            {:ok, []}
           else
-            {:error, []}
+            skills = Skills.insert_and_get_all_skills(attrs["skills"])
+            |> Skills.set_public_user_skills(attrs["skills"])
+            if skills != nil and skills != [] do
+              {:ok, skills}
+            else
+              {:error, []}
+            end
           end
       end)
       |> Multi.update(:user, fn %{skills: skills, pfp: pfp} ->
@@ -778,14 +783,10 @@ defmodule LockedIn.Accounts do
           end)
       |> Multi.run(:user_skills, fn _repo, %{user: user} ->
           IO.inspect(user.skills)
-           Enum.reduce(user.skills,[], fn skill,acc ->
+           user_skills = Enum.reduce(user.skills,[], fn skill,acc ->
              [%{user_id: user.id, skill_id: skill.id, public: skill.public} | acc]
            end)
-           |>
-           case do
-            [] -> {:error, []}
-            user_skills -> {:ok, user_skills}
-           end
+           {:ok,user_skills}
       end)
       |> Multi.update(:uskills_update, fn %{user_skills: user_skills} ->
           user
@@ -833,102 +834,5 @@ defmodule LockedIn.Accounts do
     notification
     |> Notification.read()
     |> Repo.update()
-  end
-
-
-  alias LockedIn.Accounts.Message
-
-  @doc """
-  Returns the list of messages.
-
-  ## Examples
-
-      iex> list_messages()
-      [%Message{}, ...]
-
-  """
-  def list_messages do
-    Repo.all(Message)
-  end
-
-  @doc """
-  Gets a single message.
-
-  Raises `Ecto.NoResultsError` if the Message does not exist.
-
-  ## Examples
-
-      iex> get_message!(123)
-      %Message{}
-
-      iex> get_message!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_message!(id), do: Repo.get!(Message, id)
-
-  @doc """
-  Creates a message.
-
-  ## Examples
-
-      iex> create_message(%{field: value})
-      {:ok, %Message{}}
-
-      iex> create_message(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_message(attrs \\ %{}) do
-    %Message{}
-    |> Message.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
-  Updates a message.
-
-  ## Examples
-
-      iex> update_message(message, %{field: new_value})
-      {:ok, %Message{}}
-
-      iex> update_message(message, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_message(%Message{} = message, attrs) do
-    message
-    |> Message.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a message.
-
-  ## Examples
-
-      iex> delete_message(message)
-      {:ok, %Message{}}
-
-      iex> delete_message(message)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_message(%Message{} = message) do
-    Repo.delete(message)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking message changes.
-
-  ## Examples
-
-      iex> change_message(message)
-      %Ecto.Changeset{data: %Message{}}
-
-  """
-  def change_message(%Message{} = message, attrs \\ %{}) do
-    Message.changeset(message, attrs)
   end
 end

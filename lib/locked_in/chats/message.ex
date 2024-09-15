@@ -1,4 +1,4 @@
-defmodule LockedIn.Accounts.Message do
+defmodule LockedIn.Chats.Message do
   use Ecto.Schema
   import Ecto.Changeset
 

@@ -1,5 +1,5 @@
 defmodule LockedInWeb.MessageJSON do
-  alias LockedIn.Accounts.Message
+  alias LockedIn.Chats.Message
 
   @doc """
   Renders a list of messages.
