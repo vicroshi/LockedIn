@@ -94,6 +94,8 @@ defmodule LockedInWeb.UserController do
 
   def profile(conn, %{"user_id" => user_id}) do
     user = Accounts.get_profile(user_id)
+    {status, _} = Accounts.get_status_with_connection(user, conn)
+    Map.put(user, :status, status)
     render(conn, :profile, user: user)
   end
 

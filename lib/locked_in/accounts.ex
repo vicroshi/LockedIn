@@ -621,7 +621,7 @@ defmodule LockedIn.Accounts do
         or_where: c.requester_id == ^other_id and c.requestee_id == ^user_id
       )
   end
-
+  
 
   def get_status_with_connection(user_id, other_id) do
     case get_connection(user_id, other_id) do
@@ -833,10 +833,6 @@ defmodule LockedIn.Accounts do
     notification
     |> Notification.read()
     |> Repo.update()
-  end
-
-  def connection_status(user_id, other_id) do
-    case
   end
 
 end
