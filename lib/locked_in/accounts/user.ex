@@ -14,7 +14,7 @@ defmodule LockedIn.Accounts.User do
     field :pfp, :string
     field :phone, :string
     field :current_password, :string, virtual: true, redact: true #todo: remove field
-    field :status, :string, default: nil
+    field :status, :string, default: nil, virtual: true
     field :confirmed_at, :utc_datetime #todo: remove field
     many_to_many :connections,
       User,
