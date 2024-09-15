@@ -42,4 +42,18 @@ defmodule LockedIn.AccountsFixtures do
 
     connection
   end
+
+  @doc """
+  Generate a message.
+  """
+  def message_fixture(attrs \\ %{}) do
+    {:ok, message} =
+      attrs
+      |> Enum.into(%{
+
+      })
+      |> LockedIn.Accounts.create_message()
+
+    message
+  end
 end
