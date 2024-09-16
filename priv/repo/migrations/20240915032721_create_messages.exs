@@ -7,6 +7,7 @@ defmodule LockedIn.Repo.Migrations.CreateMessages do
       add :is_read, :boolean, default: false
       add :sender_id, references(:users, on_delete: :nothing), null: false
       add :receiver_id, references(:users, on_delete: :nothing), null: false
+      add :chat_id, references(:chats, on_delete: :delete_all), null: false
       timestamps(type: :utc_datetime)
     end
   end

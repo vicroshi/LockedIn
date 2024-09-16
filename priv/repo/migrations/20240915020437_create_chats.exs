@@ -10,9 +10,5 @@ defmodule LockedIn.Repo.Migrations.CreateChats do
     create unique_index(:chats, [:starter_id, :chatter_id])
     create index(:chats, [:chatter_id])
 
-    alter table(:messages) do
-      add :chat_id, references(:chats, on_delete: :delete_all), null: false
-    end
-
   end
 end
