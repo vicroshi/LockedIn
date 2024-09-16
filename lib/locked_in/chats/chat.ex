@@ -9,7 +9,7 @@ defmodule LockedIn.Chats.Chat do
     has_one :latest_message,
     LockedIn.Chats.Message,
     where: [chat_id:
-    {:fragment, "(m0.\"inserted_at\") = (SELECT MAX(\"messages\".inserted_at) FROM messages WHERE \"messages\".chat_id = ?)"}]
+    {:fragment, "(\"inserted_at\") = (SELECT MAX(\"messages\".inserted_at) FROM messages WHERE \"messages\".chat_id = ?)"}]
     # timestamps(type: :utc_datetime)
   end
 
