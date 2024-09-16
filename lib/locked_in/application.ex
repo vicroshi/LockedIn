@@ -33,4 +33,7 @@ defmodule LockedIn.Application do
     LockedInWeb.Endpoint.config_change(changed, removed)
     :ok
   end
+
+  
+
 end

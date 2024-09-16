@@ -26,6 +26,7 @@ defmodule LockedInWeb.ChatJSON do
       user_id: other_user.id,
       user_fname: other_user.firstname,
       user_lname: other_user.lastname,
+      latest_message: LockedInWeb.MessageJSON.show(%{message: chat.latest_message})
     }
   end
 
@@ -34,6 +35,7 @@ defmodule LockedInWeb.ChatJSON do
       id: chat.id,
       user1_id: chat.user1_id,
       user2_id: chat.user2_id,
+      
       # latest_messag: LockedInWeb.MessageJSON.show(%{message: chat.latest_message})
     }
   end

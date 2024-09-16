@@ -3,11 +3,14 @@ defmodule LockedInWeb.MessageController do
 
   alias LockedIn.Chats
   alias LockedIn.Chats.Message
-
+  import LockedIn.Helpers
   action_fallback LockedInWeb.FallbackController
 
-  def index(conn, _params) do
-    messages = Chats.list_messages()
+  plug :fetch_chat when action in [:index, :update]
+
+  def index(conn, %{"user2_id" => _user_id}) do
+    messages = conn.assigns.chat.messages |> with_assoc([:receiver, :sender])
+    IO.inspect(messages)
     render(conn, :index, messages: messages)
   end
 
@@ -26,10 +29,8 @@ defmodule LockedInWeb.MessageController do
     render(conn, :show, message: message)
   end
 
-  def update(conn, %{"id" => id, "message" => message_params}) do
-    message = Chats.get_message!(id)
-
-    with {:ok, %Message{} = message} <- Chats.update_message(message, message_params) do
+  def update(conn, %{"user2_id" => _user2_id}) do
+    with {_, %Message{} = messages} <- Chats.read_messages(con.assigns.chat.id) do
       render(conn, :show, message: message)
     end
   end
@@ -40,5 +41,17 @@ defmodule LockedInWeb.MessageController do
     with {:ok, %Message{}} <- Chats.delete_message(message) do
       send_resp(conn, :no_content, "")
     end
+  end
+
+  defp fetch_chat(conn, _) do
+   case Integer.parse(conn.params["user2_id"]) do
+      {user2_id, _} ->
+        chat = Chats.get_chat_by_users(conn.assigns.current_user.id, user2_id)
+        case chat do
+          nil -> conn |>resp(:not_found, "bad request") |> send_resp() |> halt()
+          _ -> conn |> assign(:chat, chat)
+        end
+      :error -> conn |> resp(:not_found, "bad request") |> send_resp() |> halt()
+   end
   end
 end

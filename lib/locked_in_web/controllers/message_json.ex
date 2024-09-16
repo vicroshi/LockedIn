@@ -21,7 +21,9 @@ defmodule LockedInWeb.MessageJSON do
       content: message.content,
       sender_id: message.sender_id,
       receiver_id: message.receiver_id,
+      is_read: message.is_read,
       chat_id: message.chat_id,
+      sent_at: message.inserted_at
     }
   end
 end

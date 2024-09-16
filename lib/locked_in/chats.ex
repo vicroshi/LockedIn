@@ -22,10 +22,15 @@ defmodule LockedIn.Chats do
   def get_chat_by_users(user1_id,user2_id)  do
     Repo.one(
       from c in Chat,
-      where: fragment("LEAST(?, ?) = LEAST(user1_id, user2_id)", ^user1_id, ^user2_id),
-      where: fragment("GREATEST(?, ?) = GREATEST(user1_id, user2_id)", ^user1_id, ^user2_id)
+      preload: [:messages],
+      where: fragment("LEAST(?, ?) = LEAST(\"user1_id\", \"user2_id\")", type(^user1_id, :integer), type(^user2_id, :integer)),
+      where: fragment("GREATEST(?, ?) = GREATEST(\"user1_id\", \"user2_id\")", type(^user1_id, :integer), type(^user2_id, :integer))
     )
   end
+
+  # def read_chat(user1_id, user2_id) do
+    # chat = get_chat_by_users(user1_id, user2_id)
+  # end
 
   def create_chat(user1, attrs) do
     %Chat{user1_id: user1.id}
@@ -44,9 +49,8 @@ defmodule LockedIn.Chats do
       [%Message{}, ...]
 
   """
-  def list_messages do
-    Repo.all(Message)
-  end
+  # def list_messages(chat_id) do
+  # end
 
   @doc """
   Gets a single message.
@@ -116,6 +120,15 @@ defmodule LockedIn.Chats do
     message
     |> Message.changeset(attrs)
     |> Repo.update()
+  end
+
+  def unread_query(chat_id) do
+      from m in Message,
+      where: m.chat_id == ^chat_id and m.is_read == false
+  end
+
+  def read_messages(chat_id) do
+    Repo.update_all(unread_query(chat_id), set: [is_read: true])
   end
 
   @doc """
