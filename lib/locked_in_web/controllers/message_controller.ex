@@ -3,11 +3,12 @@ defmodule LockedInWeb.MessageController do
 
   alias LockedIn.Chats
   alias LockedIn.Chats.Message
+  import LockedInWeb.Plugs.ChatPlugs
   import LockedIn.Helpers
   action_fallback LockedInWeb.FallbackController
 
+  plug :ensure_connected
   plug :fetch_chat when action in [:index, :update]
-
   def index(conn, %{"user2_id" => _user_id}) do
     messages = conn.assigns.chat.messages |> with_assoc([:receiver, :sender])
     IO.inspect(messages)

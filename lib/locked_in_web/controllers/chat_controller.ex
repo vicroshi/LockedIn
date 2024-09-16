@@ -1,10 +1,13 @@
  defmodule LockedInWeb.ChatController do
   use LockedInWeb, :controller
 
+  alias LockedIn.Accounts
   alias LockedIn.Chats
   alias LockedIn.Chats.{Chat, Message}
-
+  import LockedInWeb.Plugs.ChatPlugs
   action_fallback LockedInWeb.FallbackController
+
+  plug :ensure_connected
 
 
   def index(conn, _params) do
@@ -41,13 +44,4 @@
       send_resp(conn, :no_content, "")
     end
   end
-
-  # defp not_same(conn, _) do
-  #   if is_nil(conn.params["user2_id"]) || conn.params["user2_id"] == conn.assigns.current_user.id do
-  #     conn |> resp(:bad_request, "bad request") |> send_resp() |> halt()
-  #   else
-  #     conn
-  #   end
-  # end
-
 end

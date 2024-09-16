@@ -613,6 +613,14 @@ defmodule LockedIn.Accounts do
       ** (Ecto.NoResultsError)
 
   """
+
+  def connected?(user_id, other_id) do
+    Repo.exists?(
+      from c in Connection,
+      where: (c.requester_id == ^user_id and c.requestee_id == ^other_id) or (c.requestee_id == ^user_id and c.requester_id == ^other_id) and c.has_accepted == true
+    )
+  end
+
   def get_request(requester_id, requestee_id) do
     Repo.get_by(Connection, requester_id: requester_id, requestee_id: requestee_id)
   end
