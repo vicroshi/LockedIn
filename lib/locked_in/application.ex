@@ -4,7 +4,6 @@ defmodule LockedIn.Application do
   @moduledoc false
 
   use Application
-
   @impl true
   def start(_type, _args) do
     children = [
@@ -34,7 +33,24 @@ defmodule LockedIn.Application do
     :ok
   end
 
-  
+  def start_phase(:ensure_upload_dir, :normal, _phase_args) do
+    upload_dir = LockedIn.upload_dir()
+    File.mkdir_p!(upload_dir)
+    :ok
+  end
+
+  def start_phase(:create_admin, :normal, _phase_args) do
+    case LockedIn.Accounts.get_user_by_email("admin") do
+      nil ->
+        {:ok, _admin} = LockedIn.Accounts.create_user(%{
+          email: "admin",
+          password: Bcrypt.hash_pwd_salt("admin"),
+        })
+      _user ->
+        :ok
+    end
+    :ok
+  end
 
 
 end

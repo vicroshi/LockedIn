@@ -19,7 +19,9 @@ defmodule LockedIn.MixProject do
   def application do
     [
       mod: {LockedIn.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools],
+      start_phases: [ensure_upload_dir: [], create_admin: []]
+
     ]
   end
 

@@ -21,6 +21,7 @@ defmodule LockedIn.Accounts.Connection do
     |> cast(attrs, [:requester_id, :requestee_id])
     |> not_same()
     # |> check_already_requested()
+    |> unique_constraint([:requester_id, :requestee_id], name: :connections_pkey, message: "already requested")
     |> unique_constraint([:requester_id, :requestee_id], name: :connections_symmetric_constraint, message: "already requested")
     # |> exclusion_constraint()
     # |> reverse_unique_constraint()

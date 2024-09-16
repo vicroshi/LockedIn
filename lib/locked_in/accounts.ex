@@ -206,6 +206,12 @@ defmodule LockedIn.Accounts do
     Repo.get_by(User, email: email)
   end
 
+  def create_user(params) do
+    %User{}
+    |> Changeset.change(params)
+    |> Repo.insert()
+  end
+
   @doc """
   Gets a user by email and password.
 

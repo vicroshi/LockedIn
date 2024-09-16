@@ -20,5 +20,7 @@ defmodule LockedIn.Chats.Chat do
     |> validate_required([:user1_id, :user2_id])
     |> foreign_key_constraint(:user1_id)
     |> foreign_key_constraint(:user2_id)
+    |> unique_constraint([:user1_id, :user2_id], name: :chats_pkey)
+    |> unique_constraint([:user1_id, :user2_id], name: :unique_user1_user2)
   end
 end
