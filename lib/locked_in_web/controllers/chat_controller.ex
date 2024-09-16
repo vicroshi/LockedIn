@@ -7,7 +7,7 @@
   import LockedInWeb.Plugs.ChatPlugs
   action_fallback LockedInWeb.FallbackController
 
-  plug :ensure_connected
+  plug :ensure_connected when action not in [:index, :create]
 
 
   def index(conn, _params) do

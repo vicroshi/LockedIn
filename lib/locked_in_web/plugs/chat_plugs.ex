@@ -6,6 +6,7 @@ defmodule LockedInWeb.Plugs.ChatPlugs do
   alias LockedIn.Accounts
   import LockedIn.Helpers
   def ensure_connected(conn, _) do
+    IO.inspect(conn.params)
     if Accounts.connected?(conn.assigns.current_user.id, conn.params["user2_id"]) do
       conn
     else
