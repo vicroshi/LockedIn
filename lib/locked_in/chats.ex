@@ -13,7 +13,7 @@ defmodule LockedIn.Chats do
     # |> IO.inspect()
     Repo.all(
       from c in Chat,
-      join: m in assoc(c, :messages),
+      join: m in assoc(c, :latest_message),
       preload: [:latest_message, :user1, :user2],
       where: c.user1_id == ^user.id or c.user2_id == ^user.id,
       order_by: [desc: m.inserted_at ],
