@@ -30,8 +30,8 @@ defmodule LockedInWeb.MessageController do
   end
 
   def update(conn, %{"user2_id" => _user2_id}) do
-    with {_, %Message{} = messages} <- Chats.read_messages(con.assigns.chat.id) do
-      render(conn, :show, message: message)
+    with {_, %Message{} = messages} <- Chats.read_messages(conn.assigns.chat.id) do
+      render(conn, :index, messages: messages)
     end
   end
 

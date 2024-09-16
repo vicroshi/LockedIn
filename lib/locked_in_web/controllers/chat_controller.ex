@@ -1,4 +1,4 @@
- LockedInWeb.ChatController do
+ defmodule LockedInWeb.ChatController do
   use LockedInWeb, :controller
 
   alias LockedIn.Chats
@@ -6,7 +6,6 @@
 
   action_fallback LockedInWeb.FallbackController
 
-  plug :not_same when action in [:create, :update, :delete]
 
   def index(conn, _params) do
     chats = Chats.list_chats(conn.assigns.current_user)
@@ -30,7 +29,7 @@
   def update(conn, %{"user2_id" => user2_id}) do
     chat = Chats.read_chat(conn.assigns.current_user.id, user2_id)
 
-    with {:ok, %Chat{} = chat} <- Chats.update_chat(chat, chat_params) do
+    with {:ok, %Chat{} = chat} <- Chats.update_messages(chat.id) do
       render(conn, :show, chat: chat)
     end
   end
