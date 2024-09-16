@@ -17,7 +17,7 @@ defmodule LockedIn.Chats do
       preload: [:latest_message, :user1, :user2],
       where: c.user1_id == ^user.id or c.user2_id == ^user.id,
       order_by: [desc: m.inserted_at ],
-      grqoup_by: c.id,
+      group_by: c.id,
       select: c
     )
     |> IO.inspect()
