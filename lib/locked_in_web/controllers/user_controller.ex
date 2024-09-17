@@ -60,9 +60,9 @@ defmodule LockedInWeb.UserController do
     render(conn, :show, user: conn.assigns.current_user)
   end
 
-  def update(conn, %{"password" => _password, "new_password" => _new_password} = params) do
+  def update(conn, %{"password" => password, "new_password" => new_password}) do
     user = conn.assigns.current_user
-    with {:ok, %User{} = user} <- Accounts.update_user_password(user, params) do
+    with {:ok, %User{} = user} <- Accounts.update_user_password(user, password, new_password) do
       render(conn, :show, user: user)
     end
   end

@@ -164,8 +164,25 @@ defmodule LockedIn.Accounts.User do
   def password_changeset(user, attrs, opts \\ []) do
     user
     |> cast(attrs, [:password])
-    |> validate_confirmation(:password, message: "does not match password")
     |> validate_password(opts)
+  end
+
+  def new_password_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:password, :new_password])
+    |> validate_required([:password, :new_password])
+    |> verify_password
+  end
+
+  def verify_password(changeset) do
+    password = get_change(changeset, :password)
+    new_password = get_change(changeset, :new_password)
+
+    if valid_password?(changeset.data, password) do
+      changeset
+    else
+      add_error(changeset, :password, "is not valid")
+    end
   end
 
   @doc """

@@ -399,8 +399,12 @@ defmodule LockedIn.Accounts do
       %Ecto.Changeset{data: %User{}}
 
   """
-  def change_user_password(user, attrs \\ %{}) do
-    User.password_changeset(user, attrs, hash_password: false)
+  def update_user_password(user, password, new_password) do
+    # User.password_changeset(user, attrs, hash_password: false)
+    user
+    |> User.password_changeset(%{password: new_password})
+    |> User.validate_current_password(password)
+    |> Repo.update()
   end
 
   @doc """
@@ -415,21 +419,21 @@ defmodule LockedIn.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_user_password(user, password, attrs) do
-    changeset =
-      user
-      |> User.password_changeset(attrs)
-      |> User.validate_current_password(password)
+  # def update_user_password(user, password, attrs) do
+  #   changeset =
+  #     user
+  #     |> User.password_changeset(attrs)
+  #     |> User.validate_current_password(password)
 
-    Ecto.Multi.new()
-    |> Ecto.Multi.update(:user, changeset)
-    |> Ecto.Multi.delete_all(:tokens, UserToken.by_user_and_contexts_query(user, :all))
-    |> Repo.transaction()
-    |> case do
-      {:ok, %{user: user}} -> {:ok, user}
-      {:error, :user, changeset, _} -> {:error, changeset}
-    end
-  end
+  #   Ecto.Multi.new()
+  #   |> Ecto.Multi.update(:user, changeset)
+  #   |> Ecto.Multi.delete_all(:tokens, UserToken.by_user_and_contexts_query(user, :all))
+  #   |> Repo.transaction()
+  #   |> case do
+  #     {:ok, %{user: user}} -> {:ok, user}
+  #     {:error, :user, changeset, _} -> {:error, changeset}
+  #   end
+  # end
 
   ## API token auth
 
