@@ -5,8 +5,23 @@ defmodule LockedInWeb.UserController do
   alias LockedIn.Accounts.User
   import LockedIn.Helpers
   action_fallback LockedInWeb.FallbackController
+
+  def test(conn,_params) do
+    json = Jason.encode!(%{
+      root: %{
+        child: "Content"
+      }
+    }, pretty: true)
+    conn
+    |> put_resp_content_type("application/json")
+    |> put_resp_header("content-disposition", ~s(attachment; filename="test.json"))
+    # |> put_resp_header("content-transfer-encoding", "binary")
+    # |> put_resp_header("cache-control", "no-cache")
+    |> send_resp(200, json)
+  end
+
   def index(conn, _params) do
-    users = Accounts.list_users()
+    users = Accounts.users(conn.assigns.current_user.id)
     render(conn, :index, users: users)
   end
 
@@ -45,11 +60,11 @@ defmodule LockedInWeb.UserController do
     render(conn, :show, user: conn.assigns.current_user)
   end
 
-  def update(conn, %{"password" => password, "new_password" => new_password}) do
+  def update(conn, %{"password" => _password, "new_password" => _new_password} = params) do
     user = conn.assigns.current_user
-    # with {:ok, %User{} = user} <- Accounts.update_(user, %{"password" => password}) do
-      # render(conn, :show, user: user)
-    # end
+    with {:ok, %User{} = user} <- Accounts.update_user_password(user, params) do
+      render(conn, :show, user: user)
+    end
   end
 
   def update(conn, %{"email" => _new_email} = params) do

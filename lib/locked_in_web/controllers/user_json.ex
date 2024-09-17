@@ -30,6 +30,7 @@ defmodule LockedInWeb.UserJSON do
       id: user.id,
       firstname: user.firstname,
       lastname: user.lastname,
+      is_admin: user.email === LockedIn.admin_email(),
       # email: user.email,
       # password: user.password,
       pfp: user.pfp,

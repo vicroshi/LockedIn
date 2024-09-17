@@ -17,6 +17,10 @@ defmodule LockedIn.Accounts do
   ## Database getters
 
 
+  def users(admin_id) do
+    Repo.all(where(User, [u], u.id != ^admin_id))
+  end
+
   def get_feed(user) do
     user_id = user.id
 
@@ -349,6 +353,12 @@ defmodule LockedIn.Accounts do
   def update_user_email(user, attrs) do
     user
     |> User.email_changeset(attrs)
+    |> Repo.update()
+  end
+
+  def update_user_password(user, attrs) do
+    user
+    |> User.password_changeset(attrs)
     |> Repo.update()
   end
 

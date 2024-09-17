@@ -43,6 +43,7 @@ defmodule LockedInWeb.Router do
   # Other scopes may use custom stacks.
   scope "/api", LockedInWeb do
     pipe_through :api
+    get "/test", UserController, :test
     post "/register", UserRegistrationController, :create
     post "/login", UserSessionController, :create
     delete "/logout", UserSessionController, :delete
@@ -96,14 +97,14 @@ defmodule LockedInWeb.Router do
       end
     end
   end
-  scope "/api" do
+  scope "/api", LockedInWeb do
     pipe_through [:api, :authenticted, :is_admin]
     scope "/admin" do
-      resources "/users", AdminController, except: [:new, :create, :edit], param: "user_id"
+      resources "/users", UserController, except: [:new, :create, :edit], param: "user_id"
       scope "/users/:user_id" do
-        resources "/posts", AdminController, except: [:new, :show, :edit], param: "post_id"
+        resources "/posts", UserController, except: [:new, :show, :edit], param: "post_id"
         scope "/posts/:post_id" do
-          resources "/comments", AdminController, only: [:create, :delete], param: "comment_id"
+          resources "/comments", UserController, only: [:create, :delete], param: "comment_id"
         end
       end
     end

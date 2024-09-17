@@ -146,6 +146,7 @@ defmodule LockedIn.Accounts.User do
       %{changes: %{email: _}} = changeset -> changeset
       %{} = changeset -> add_error(changeset, :email, "did not change")
     end
+    |> unique_constraint(:email,name: "users_email_index")
   end
 
   @doc """
