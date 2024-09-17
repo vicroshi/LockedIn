@@ -17,7 +17,7 @@ defmodule LockedInWeb.MessageController do
 
   def create(conn, %{"message" => _message_params, "user2_id" => _user_id} = params) do
     IO.inspect(params)
-    with {:ok, %Message{} = message} <- Chats.create_message(conn.assigns.current_user.id ,params) do
+    with {:ok, %Message{} = message} <- Chats.create_message(conn.assigns.connection,conn.assigns.current_user.id ,params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", ~p"/api/messages/#{message}")

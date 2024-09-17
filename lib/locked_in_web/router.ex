@@ -30,6 +30,10 @@ defmodule LockedInWeb.Router do
     plug :authorize
   end
 
+  pipeline :is_admin do
+    plug :admin
+  end
+
   # scope "/", LockedInWeb do
   #   pipe_through :browser
 
@@ -73,11 +77,16 @@ defmodule LockedInWeb.Router do
     scope "/jobs/:job_id" do
       resources "/applications", ApplicationController, only: [:create, :show, :index, :delete], param: "application_id"
     end
-    patch "/users/profile", UserController, :update
-    get "/users/profile/:user_id", UserController, :profile
-    pipe_through :authorized
+    scope "/users" do
+      patch "/profile", UserController, :update
+      get "/profile/:user_id", UserController, :profile
+      patch "/email_change", UserController, :update
+      patch "/password_change", UserController, :update
+    end
+
     delete "/like/:post_id", PostController, :unlike
     post "/like/:post_id", PostController, :like
+    pipe_through :authorized
     resources "/users", UserController, except: [:new, :create, :edit], param: "user_id"
     scope "/users/:user_id" do
       get "/profile", UserController, :profile
@@ -87,6 +96,19 @@ defmodule LockedInWeb.Router do
       end
     end
   end
+  scope "/api" do
+    pipe_through [:api, :authenticted, :is_admin]
+    scope "/admin" do
+      resources "/users", AdminController, except: [:new, :create, :edit], param: "user_id"
+      scope "/users/:user_id" do
+        resources "/posts", AdminController, except: [:new, :show, :edit], param: "post_id"
+        scope "/posts/:post_id" do
+          resources "/comments", AdminController, only: [:create, :delete], param: "comment_id"
+        end
+      end
+    end
+  end
+
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:locked_in, :dev_routes) do

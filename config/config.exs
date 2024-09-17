@@ -10,7 +10,8 @@ import Config
 config :locked_in,
   ecto_repos: [LockedIn.Repo],
   generators: [timestamp_type: :utc_datetime],
-  upload_path: "priv/media"
+  upload_path: "priv/media",
+  admin_email: "admin"
 
 # Configures the endpoint
 config :locked_in, LockedInWeb.Endpoint,

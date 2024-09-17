@@ -3,7 +3,7 @@ defmodule LockedIn.Repo.Migrations.CreateJobSkills do
 
   def change do
     create table(:job_skills, primary_key: false) do
-      add :job_id, references(:jobs, on_delete: :delete_all), primary_key: true
+      add :job_id, references(:jobs, on_delete: :delete_all), primary_key: truee
       add :skill_id, references(:skills, on_delete: :delete_all), primary_key: true
     end
 

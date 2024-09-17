@@ -2,6 +2,7 @@ defmodule LockedIn.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
+alias Ecto.Query.Builder.Lock
 
   use Application
   @impl true
@@ -43,8 +44,8 @@ defmodule LockedIn.Application do
     case LockedIn.Accounts.get_user_by_email("admin") do
       nil ->
         {:ok, _admin} = LockedIn.Accounts.create_user(%{
-          email: "admin",
-          password: Bcrypt.hash_pwd_salt("admin"),
+          email: LockedIn.admin_email(),
+          password: Bcrypt.hash_pwd_salt(LockedIn.admin_password()),
         })
       _user ->
         :ok

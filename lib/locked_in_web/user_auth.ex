@@ -124,6 +124,18 @@ defmodule LockedInWeb.UserAuth do
     end
   end
 
+
+  def admin(conn, _opts) do
+    user = conn.assigns[:current_user]
+    if user.email == LockedIn.admin_email do
+      conn
+    else
+      conn
+      |> send_resp(:unauthorized, "No access for you")
+      |> halt()
+    end
+  end
+
   defp ensure_user_token(conn) do
     if token = get_session(conn, :user_token) do
       {token, conn}

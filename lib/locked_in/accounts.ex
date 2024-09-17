@@ -346,16 +346,10 @@ defmodule LockedIn.Accounts do
   If the token matches, the user email is updated and the token is deleted.
   The confirmed_at date is also updated to the current time.
   """
-  def update_user_email(user, token) do
-    context = "change:#{user.email}"
-
-    with {:ok, query} <- UserToken.verify_change_email_token_query(token, context),
-         %UserToken{sent_to: email} <- Repo.one(query),
-         {:ok, _} <- Repo.transaction(user_email_multi(user, email, context)) do
-      :ok
-    else
-      _ -> :error
-    end
+  def update_user_email(user, attrs) do
+    user
+    |> User.email_changeset(attrs)
+    |> Repo.update()
   end
 
   defp user_email_multi(user, email, context) do
@@ -620,8 +614,8 @@ defmodule LockedIn.Accounts do
 
   """
 
-  def connected?(user_id, other_id) do
-    Repo.exists?(
+  def connected(user_id, other_id) do
+    Repo.one(
       from c in Connection,
       where: (c.requester_id == ^user_id and c.requestee_id == ^other_id) or (c.requestee_id == ^user_id and c.requester_id == ^other_id) and c.has_accepted == true
     )

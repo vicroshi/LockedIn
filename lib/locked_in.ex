@@ -9,4 +9,13 @@ defmodule LockedIn do
   def upload_dir do
     Path.expand("./"<>Application.get_env(:locked_in, :upload_path))
   end
+
+  def admin_email do
+    Application.get_env(:locked_in, :admin_email)
+  end
+
+  def admin_password do
+    Application.get_env(:locked_in, :admin_password)
+  end
+
 end

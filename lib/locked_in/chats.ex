@@ -83,10 +83,9 @@ defmodule LockedIn.Chats do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_message(user1_id, attrs \\ %{}) do
+  def create_message(connection,user_id,  attrs \\ %{}) do
     Multi.new()
-    |> Multi.insert(:chat, Chat.changeset(%Chat{},
-        Map.put(attrs, "user1_id", user1_id) |> IO.inspect()),
+    |> Multi.insert(:chat, %Chat{user1_id: connection.requester_id, user2_id: connection.requestee_id},
         conflict_target: {:unsafe_fragment, "(LEAST(\"user1_id\", \"user2_id\"), GREATEST(\"user1_id\", \"user2_id\"))"},
          on_conflict: {:replace, [:user1_id, :user2_id]},
          returning: true)
@@ -95,7 +94,7 @@ defmodule LockedIn.Chats do
       Ecto.build_assoc(chat, :messages)
       |> IO.inspect()
       |> Message.changeset(attrs["message"]
-                           |> Map.put("sender_id", user1_id)
+                           |> Map.put("sender_id",user_id)
                            |> Map.put("receiver_id", attrs["user2_id"]))
     end)
     |> Repo.transaction()
