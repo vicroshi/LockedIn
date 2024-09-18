@@ -17,6 +17,14 @@ defmodule LockedIn.Accounts do
   ## Database getters
 
 
+  def fetch_users_data(ids, preloads \\ []) do
+    Repo.all(
+      from u in User,
+      where: u.id in ^ids,
+      preload: [:posts, :comments, :likes, :connections_join, :reverse_connections_join, :public_skills, jobs: :skills]
+    )
+  end
+
   def users(admin_id) do
     Repo.all(where(User, [u], u.id != ^admin_id))
   end

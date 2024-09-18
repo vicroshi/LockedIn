@@ -1,6 +1,7 @@
 defmodule LockedIn.Accounts.Connection do
   use Ecto.Schema
   import Ecto.Changeset
+
   @primary_key false
   schema "connections" do
     field :has_accepted, :boolean, default: false
@@ -8,6 +9,7 @@ defmodule LockedIn.Accounts.Connection do
     # field :requestee_id, :id, primary_key: true
     belongs_to :requester, LockedIn.Accounts.User, primary_key: true
     belongs_to :requestee, LockedIn.Accounts.User, primary_key: true
+    field :is_reverse, :boolean, default: false, virtual: true
     # has_many :posts, through: [:requester, :posts]
     # has_many :liked_posts, through: [:requester, :liked_posts]
     # has_many :reverse_posts, through: [:requestee, :posts]
@@ -54,4 +56,15 @@ defmodule LockedIn.Accounts.Connection do
     end
   end
 
+end
+defimpl Saxy.Builder, for: LockedIn.Accounts.Connection do
+  import Saxy.XML
+
+  def build(connection) do
+    element(
+      "Connection",
+      [{"user_id", if connection.is_reverse do connection.requester_id else connection.requestee_id end}],
+      []
+    )
+  end
 end

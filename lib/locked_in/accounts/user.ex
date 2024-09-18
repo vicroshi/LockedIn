@@ -5,6 +5,8 @@ defmodule LockedIn.Accounts.User do
   alias LockedIn.Posts.Post
   alias LockedIn.Accounts.User
   alias LockedIn.Posts.Like
+
+
   schema "users" do
     field :email, :string
     field :password, :string
@@ -16,6 +18,8 @@ defmodule LockedIn.Accounts.User do
     field :current_password, :string, virtual: true, redact: true #todo: remove field
     field :status, :string, default: nil, virtual: true
     field :confirmed_at, :utc_datetime #todo: remove field
+    has_many :connections_join, Connection, foreign_key: :requester_id
+    has_many :reverse_connections_join, Connection, foreign_key: :requestee_id
     many_to_many :connections,
       User,
       join_through: Connection,
@@ -29,6 +33,7 @@ defmodule LockedIn.Accounts.User do
     # many_to_many :skills, LockedIn.Skills.Skill, join_through: LockedIn.Accounts.UserSkill, on_replace: :delete
     has_many :user_skills, LockedIn.Accounts.UserSkill, on_replace: :delete
     many_to_many :skills, LockedIn.Skills.Skill, join_through: LockedIn.Accounts.UserSkill, on_replace: :delete
+    many_to_many :public_skills, LockedIn.Skills.Skill, join_through: LockedIn.Accounts.UserSkill, join_where: [public: true]
     # many_to_many :public_skills, LockedIn.Skills.Skill, join_through: LockedIn.Accounts.UserSkill, join_where: [public: true]
     has_many :jobs, LockedIn.Jobs.Job
     has_many :applications, LockedIn.Jobs.Application, foreign_key: :applicant_id
@@ -226,5 +231,34 @@ defmodule LockedIn.Accounts.User do
     rel_path = Path.join(to_string(user.id),Enum.join([user.firstname,user.lastname], "_") <> Path.extname(filename))
     url_path = Path.join("/uploads",rel_path)
     %{fullpath: Path.join(LockedIn.upload_dir,rel_path), url_path: url_path}
+  end
+end
+
+
+defimpl Saxy.Builder, for: LockedIn.Accounts.User do
+  import Saxy.XML
+
+  def build(user) do
+    element(
+      "User",
+      [id: user.id],
+      [
+        element("Name", [], Enum.join([user.firstname, user.lastname], " ")),
+        element("Email", [], user.email),
+        element("Phone", [], user.phone),
+        element("CV", [],
+        [
+          element("Education", [], user.education),
+          element("Experience", [], user.experience),
+          element("Skills", [], user.public_skills),
+        ]
+        ),
+        element("Posts", [], user.posts),
+        element("Comments", [], user.comments),
+        element("Likes", [], user.likes),
+        element("Jobs", [], user.jobs),
+        element("Network", [], user.connections_join ++ Enum.map(user.reverse_connections_join, fn connection -> Map.put(connection,:is_reverse,true) end)),
+      ]
+    )
   end
 end

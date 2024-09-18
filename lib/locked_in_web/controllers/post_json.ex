@@ -22,6 +22,7 @@ defmodule LockedInWeb.PostJSON do
       user_id: post.user_id,
       user_fname: post.user.firstname,
       user_lname: post.user.lastname,
+      user_pfp: post.user.pfp,
       posted_at: post.posted_at,
       media: post.media_paths,
       like_count: post.like_count,

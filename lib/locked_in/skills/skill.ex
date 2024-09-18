@@ -2,6 +2,7 @@ defmodule LockedIn.Skills.Skill do
   use Ecto.Schema
   import Ecto.Changeset
   @derive {Jason.Encoder, only: [:name, :id]}
+  @derive {Saxy.Builder, name: "skill", attributes: [:id], children: [:name]}
   schema "skills" do
     field :name, :string
     many_to_many :users, LockedIn.Accounts.User, join_through: "user_skills"

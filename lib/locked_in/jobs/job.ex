@@ -22,3 +22,21 @@ defmodule LockedIn.Jobs.Job do
     |> validate_required([:position, :location, :company_name])
   end
 end
+
+defimpl Saxy.Builder, for: LockedIn.Jobs.Job do
+  import Saxy.XML
+
+  def build(job) do
+    element(
+      "Job",
+      [id: job.id],
+      [
+        element("Position",[], job.position),
+        element("CompanyName",[], job.company_name),
+        element("Location",[], job.location),
+        element("Description",[], job.description),
+        element("Skills",[], job.skills),
+      ]
+    )
+  end
+end

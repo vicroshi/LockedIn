@@ -22,6 +22,7 @@ defmodule LockedInWeb.CommentJSON do
       user_id: comment.user_id,
       user_fname: comment.user.firstname,
       user_lname: comment.user.lastname,
+      user_pfp: comment.user.pfp,
       commented_at: comment.inserted_at
     }
   end

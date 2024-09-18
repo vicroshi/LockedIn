@@ -5,6 +5,79 @@ defmodule LockedInWeb.UserController do
   alias LockedIn.Accounts.User
   import LockedIn.Helpers
   action_fallback LockedInWeb.FallbackController
+  import Saxy.XML
+
+
+  def export(conn, params) do
+    ids = params["userIds"]
+    # options = Enum.reduce(params["export_options"],[], fn opt,acc ->
+    #   if opt === "network" do
+    #     [ :connections, :reverse_connections | acc]
+    #   else if opt === "experience"
+    #   else
+    #     [String.to_atom(opt) | acc]
+    #   end
+    # end)
+    users = Accounts.fetch_users_data(ids)
+    file = case params["export_format"] do
+       "xml" -> generate_xml(users)
+      #  "json" -> generate_json(users,options)
+    end
+    IO.puts(file)
+  end
+
+  defp generate_xml(users,options \\ []) do
+    # root = element("users",[], Enum.reduce(
+      # users,
+      # [],
+      # fn user,acc ->
+        # [
+          # element("user", [id: user.id],
+          # [
+            # element("Name",[],[user.firstname <>" " <> user.lastname])
+            # | Enum.reduce(options,[],
+                # fn option,acc ->
+                  # [Map.get(user,option) | acc]
+                # end
+              # )
+          # ])
+          # | acc
+        # ]
+      # end
+    # ))
+    IO.inspect(hd(users))
+    root = element("Users",[count: length(users)],users)
+    XmlBuilder.generate(root)
+    # Saxy.encode!(root,[])
+    # |> Floki.parse_document!()
+    # |> Floki.raw_html(pretty: true)
+    # users_xml = Enum.map(users, fn user ->
+    #   user_elements = Enum.map(options, fn option ->
+    #     element(option,[], Map.get(user, option))
+    #   end)
+
+    #   element("user", [], user_elements)
+    # end)
+
+    # document = {"users", [], users_xml}
+    # Saxy.Builder.build(document)
+    # |>
+    # Saxy.encode!()
+  end
+
+  defp send_file(conn, content, format) do
+    {content_type, filename} = case format do
+      "xml" -> {"application/xml", "user_data.xml"}
+      "json" -> {"application/octet-stream", "user_data.json"}
+    end
+
+    conn
+    |> put_resp_content_type(content_type)
+    |> put_resp_header("content-disposition", ~s(attachment; filename="#{filename}"))
+    |> put_resp_header("content-transfer-encoding", "binary")
+    |> put_resp_header("cache-control", "no-cache")
+    |> send_resp(200, content)
+  end
 
   def test(conn,_params) do
     json = Jason.encode!(%{

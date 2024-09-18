@@ -3,6 +3,7 @@ defmodule LockedIn.Posts.Like do
   import Ecto.Changeset
   alias LockedIn.Posts.Post
   alias LockedIn.Accounts.User
+  @derive {Saxy.Builder, name: "like", attributes: [:post_id]}
   @primary_key false
   schema "likes" do
 

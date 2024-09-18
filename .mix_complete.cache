@@ -34,6 +34,8 @@ ecto.migrations	Displays the repository migration status
 ecto.reset	Alias defined in mix.exs
 ecto.rollback	Rolls back the repository migrations
 ecto.setup	Alias defined in mix.exs
+elixir_make.checksum	Fetch precompiled NIFs and build the checksums
+elixir_make.precompile	Precompiles the given project for all targets
 esbuild	Invokes esbuild with the profile and args
 esbuild.install	Installs esbuild under _build
 escript	Lists installed escripts
