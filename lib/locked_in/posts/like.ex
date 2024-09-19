@@ -4,6 +4,7 @@ defmodule LockedIn.Posts.Like do
   alias LockedIn.Posts.Post
   alias LockedIn.Accounts.User
   @derive {Saxy.Builder, name: "like", attributes: [:post_id]}
+  @derive {Jason.Encoder, only: [:post_id, :user_id]}
   @primary_key false
   schema "likes" do
 

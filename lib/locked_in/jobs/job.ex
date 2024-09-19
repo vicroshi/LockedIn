@@ -2,6 +2,7 @@ defmodule LockedIn.Jobs.Job do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Jason.Encoder, only: [:id, :description, :position, :company_name, :location, :user_id]}
   schema "jobs" do
     field :description, :string
     field :position, :string

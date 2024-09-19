@@ -41,7 +41,7 @@ defmodule LockedInWeb.UserJSON do
   defp data(%LockedIn.Accounts.UserExperience{} = experience) do
     %{
       id: experience.id,
-      title: experience.title,
+      title: experience.position,
       company: experience.company,
       start_date: experience.start_date,
       end_date: experience.end_date,
@@ -55,8 +55,7 @@ defmodule LockedInWeb.UserJSON do
       school: education.school,
       degree: education.degree,
       start_date: education.start_date,
-      end_date: education.end_date,
-      description: education.description
+      end_date: education.end_date
     }
   end
 

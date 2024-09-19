@@ -2,6 +2,8 @@ defmodule LockedIn.Accounts.Connection do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Jason.Encoder, only: [:requester_id, :requestee_id]}
+
   @primary_key false
   schema "connections" do
     field :has_accepted, :boolean, default: false

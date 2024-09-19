@@ -6,7 +6,7 @@ defmodule LockedIn.Accounts.User do
   alias LockedIn.Accounts.User
   alias LockedIn.Posts.Like
 
-
+  @derive {Jason.Encoder, only: [:id, :email, :firstname, :lastname, :phone, :posts , :comments, :likes, :jobs, :connections_join, :reverse_connections_join, :education, :experience, :skills]}
   schema "users" do
     field :email, :string
     field :password, :string
@@ -248,9 +248,9 @@ defimpl Saxy.Builder, for: LockedIn.Accounts.User do
         element("Phone", [], user.phone),
         element("CV", [],
         [
-          element("Education", [], user.education),
-          element("Experience", [], user.experience),
-          element("Skills", [], user.public_skills),
+          element("Education", [count: length(user.education)], user.education),
+          element("Experience", [count: length(user.experience)], user.experience),
+          element("Skills", [count: length(user.skills)], user.skills),
         ]
         ),
         element("Posts", [], user.posts),

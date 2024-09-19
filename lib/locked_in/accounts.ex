@@ -21,7 +21,7 @@ defmodule LockedIn.Accounts do
     Repo.all(
       from u in User,
       where: u.id in ^ids,
-      preload: [:posts, :comments, :likes, :connections_join, :reverse_connections_join, :public_skills, jobs: :skills]
+      preload: [:posts, :comments, :likes, :connections_join, :reverse_connections_join, :skills, jobs: :skills]
     )
   end
 

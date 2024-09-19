@@ -2,6 +2,7 @@ defmodule LockedIn.Posts.Comment do
   use Ecto.Schema
   import Ecto.Changeset
   @derive {Saxy.Builder, name: "comment", attributes: [:id], children: [:content]}
+  @derive {Jason.Encoder, only: [:id, :content, :user_id, :post_id, :inserted_at]}
   schema "comments" do
     field :content, :string
     belongs_to :user, LockedIn.Accounts.User

@@ -2,6 +2,7 @@ defmodule LockedIn.Posts.Post do
   use Ecto.Schema
   import Ecto.Changeset
   @derive {Saxy.Builder, name: "post", attributes: [:id, :media_paths], children: [:content]}
+  @derive {Jason.Encoder, only: [:id, :content, :media_paths, :posted_at, :user_id]}
   schema "posts" do
     field :content, :string
     field :media, :any, virtual: true
