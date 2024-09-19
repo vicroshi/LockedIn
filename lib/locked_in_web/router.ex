@@ -100,7 +100,7 @@ defmodule LockedInWeb.Router do
   scope "/api", LockedInWeb do
     pipe_through [:api, :authenticted, :is_admin]
     scope "/admin" do
-      get "users/export", UserController, :export
+      get "users/export", ExportController, :export
       resources "/users", UserController, except: [:new, :create, :edit], param: "user_id"
       scope "/users/:user_id" do
         resources "/posts", UserController, except: [:new, :show, :edit], param: "post_id"

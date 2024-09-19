@@ -831,8 +831,7 @@ defmodule LockedIn.Accounts do
       |> Repo.transaction()
       |> case do
         {:ok, %{user: user}} -> {:ok, user}
-        {:error, _} -> {:error, user}
-      end
+        {:error, failed_op, failed_val, changes_so_far} -> {:error, failed_val}      end
 
     # case user
     # |> Repo.preload([:skills])

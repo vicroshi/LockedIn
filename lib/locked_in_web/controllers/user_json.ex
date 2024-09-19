@@ -5,8 +5,9 @@ defmodule LockedInWeb.UserJSON do
   @doc """
   Renders a list of users.
   """
-  def index(%{users: users}) do
-    %{data: for(user <- users, do: data(user))}
+  def index(%{users: users, current_user: cu}) do
+    IO.inspect(cu)
+    %{data: for(user <- users, do: Map.put(data(user),"email", user.email))}
   end
 
   @doc """
@@ -40,22 +41,22 @@ defmodule LockedInWeb.UserJSON do
 
   defp data(%LockedIn.Accounts.UserExperience{} = experience) do
     %{
-      id: experience.id,
-      title: experience.position,
+      title: experience.title,
       company: experience.company,
       start_date: experience.start_date,
       end_date: experience.end_date,
-      description: experience.description
+      description: experience.description,
+      public: experience.public
     }
   end
 
   defp data(%LockedIn.Accounts.UserEducation{} = education) do
     %{
-      id: education.id,
       school: education.school,
       degree: education.degree,
       start_date: education.start_date,
-      end_date: education.end_date
+      end_date: education.end_date,
+      public: education.public
     }
   end
 
