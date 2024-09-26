@@ -27,6 +27,13 @@ config :locked_in, LockedInWeb.Endpoint,
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:locked_in, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:locked_in, ~w(--watch)]}
+  ],
+  
+  https: [
+    port: 4001,
+    cipher_suite: :strong,
+    keyfile: "priv/cert/selfsigned_key.pem",
+    certfile: "priv/cert/selfsigned.pem"
   ]
 
 # ## SSL Support

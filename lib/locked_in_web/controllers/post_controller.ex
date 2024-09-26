@@ -7,7 +7,7 @@ defmodule LockedInWeb.PostController do
   action_fallback LockedInWeb.FallbackController
   import LockedInWeb.Plugs.PostPlugs
   import LockedIn.Helpers
-  plug :fetch_post when action in [:show, :update, :delete, :like, :unlike]
+  plug :fetch_post when action in [:show, :update, :delete, :like,:mark_viewed, :unlike]
 
   # def action(conn, _) do
     # post_id = conn.params["post_id"]
@@ -15,6 +15,17 @@ defmodule LockedInWeb.PostController do
     # args = [conn, conn.params, post]
     # apply(__MODULE__, action_name(conn), args)
   # end
+
+  def mark_viewed(conn, %{"post_id" => _id}) do
+    case Posts.mark_viewed(conn.assigns.post.id,conn.assigns.current_user.id) do
+      {1, _} -> conn
+                |> put_status(:created)
+                |> render(:show, post: Map.put(conn.assigns.post,:viewed,true) |> IO.inspect())
+      {0, _} -> json(conn, %{errors: "error creating view"})
+    end
+
+
+  end
 
   def index(conn, _params) do
     posts = Posts.list_posts_by_user(conn.assigns.current_user.id)

@@ -24,6 +24,10 @@ defmodule LockedIn.Jobs do
     Repo.all(Job)
   end
 
+  def mark_viewed(job_id, user_id) do
+    Repo.insert_all("job_views" , on_conflict: :nothing)
+  end
+
   def list_jobs_by_user(user_id) do
     Repo.all(from(j in Job, where: j.user_id == ^user_id))
   end
@@ -52,6 +56,7 @@ defmodule LockedIn.Jobs do
         join: us in Accounts.UserSkill,
         on: us.skill_id == js.skill_id and us.public == true,
         where: us.user_id == ^user_id,
+        where: j.user_id != ^user_id,
         group_by: j.id,
         select: %{j | matching_skills: count(js.skill_id)}
         # select: j

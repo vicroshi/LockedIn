@@ -25,6 +25,7 @@ defmodule LockedIn.Accounts do
     )
   end
 
+
   def users(admin_id) do
     Repo.all(where(User, [u], u.id != ^admin_id))
   end
@@ -59,7 +60,10 @@ defmodule LockedIn.Accounts do
       on: l.post_id == p.id,
       where: l.user_id == ^user_id,
       distinct: true,
-      select: %{p | like_count: lp.like_count, comment_count: lp.comment_count, liked: true}
+      select: %{p | like_count: lp.like_count,
+                    comment_count: lp.comment_count,
+                    liked: true,
+                    viewed: true}
 
     connection_posts_query =
       from p in Post,
@@ -114,9 +118,14 @@ defmodule LockedIn.Accounts do
       # select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
     final_query =
       from p in subquery(feed_query),
+      left_join: v in "post_views",
+      on: v.user_id == ^user_id and v.post_id == p.id,
       preload: [:user, :likes],
       order_by: [desc: p.posted_at],
-      select: %{p | like_count: p.like_count, comment_count: p.comment_count, liked: false}
+      select: %{p | like_count: p.like_count,
+                    comment_count: p.comment_count,
+                    liked: false,
+                    viewed: not is_nil(v.post_id)}
     liked_posts = Repo.all(user_liked_posts_query) |> IO.inspect(label: "liked_posts")
     final_posts = Repo.all(final_query) |> IO.inspect(label: "final_posts")
     Enum.uniq_by(liked_posts ++ final_posts, & &1.id)

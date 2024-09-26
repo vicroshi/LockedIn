@@ -61,6 +61,7 @@ defmodule LockedInWeb.Router do
     # get "/users/:user_id/profile", UserController, :profile
     resources "/posts", PostController, except: [:new, :edit], param: "post_id"
     scope "/posts/:post_id" do
+      post "/view", PostController, :mark_viewed
       resources "/comments", CommentController, only: [:create, :show, :index , :delete], param: "comment_id"
     end
     scope "/notifications"  do
@@ -76,7 +77,9 @@ defmodule LockedInWeb.Router do
     get "/jobs/feed", JobController, :feed
     resources "/jobs", JobController, only: [:create, :show, :index, :delete], param: "job_id"
     scope "/jobs/:job_id" do
+      post "/", JobController, :mark_viewed
       resources "/applications", ApplicationController, only: [:create, :show, :index, :delete], param: "application_id"
+
     end
     scope "/users" do
       patch "/profile", UserController, :update

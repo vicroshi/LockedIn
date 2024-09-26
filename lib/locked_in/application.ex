@@ -41,6 +41,7 @@ alias Ecto.Query.Builder.Lock
   end
 
   def start_phase(:create_admin, :normal, _phase_args) do
+
     case LockedIn.Accounts.get_user_by_email("admin") do
       nil ->
         {:ok, _admin} = LockedIn.Accounts.create_user(%{

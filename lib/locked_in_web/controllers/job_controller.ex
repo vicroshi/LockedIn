@@ -11,6 +11,12 @@ defmodule LockedInWeb.JobController do
     render(conn, :index, jobs: jobs |> with_assoc([:user, :skills, :applications]))
   end
 
+  def fetch_and_view(conn, %{"job_id" => id}) do
+    job = Jobs.get_job!(id)
+    Jobs.mark_viewed(job.id,conn.assigns.current_user.id)
+    render(conn, :show, job: job |> with_assoc([:user, :skills]))
+  end
+
   def create(conn, %{"job" => job_params}) do
     with {:ok, %Job{} = job} <- Jobs.create_job(conn.assigns.current_user.id,job_params) do
       conn

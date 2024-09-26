@@ -39,6 +39,21 @@ defmodule LockedIn.Posts do
       ** (Ecto.NoResultsError)
 
   """
+  def get_post(post_id, user_id) do
+    q = from p in Post,
+      left_join: v in "post_views",
+      on: v.user_id == ^user_id and v.post_id == p.id,
+      where: p.id == ^post_id,
+      preload: :user,
+      select: %{p | viewed: not is_nil(v.post_id)}
+    Repo.one(q)
+    |> IO.inspect()
+  end
+
+  def mark_viewed(post_id, user_id) do
+    Repo.insert_all("post_views",[%{post_id: post_id, user_id: user_id}],on_conflict: :nothing)
+  end
+
   def get_post!(id), do: Repo.get!(Post, id)
   def get_post_by_user!(post_id,user_id) do
     Repo.get_by(Post, [id: post_id, user_id: user_id])
