@@ -23,7 +23,7 @@ defmodule LockedInWeb.JobJSON do
       location: job.location,
       posted_at: job.inserted_at,
       skills: for(skill <- job.skills, do: LockedInWeb.SkillJSON.show(%{skill: skill})),
-      applicaitons: LockedInWeb.ApplicationJSON.index(%{applications: job.applications}),
+      applications: LockedInWeb.ApplicationJSON.index(%{applications: job.applications}),
       description: job.description,
       company_name: job.company_name,
       user_id: job.user_id,

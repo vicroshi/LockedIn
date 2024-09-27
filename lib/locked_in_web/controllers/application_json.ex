@@ -25,6 +25,7 @@ defmodule LockedInWeb.ApplicationJSON do
       user_id: application.applicant_id,
       user_fname: application.applicant.firstname,
       user_lname: application.applicant.lastname,
+      user_pfp: application.applicant.pfp,
       job_id: application.job_id
     }
   end
