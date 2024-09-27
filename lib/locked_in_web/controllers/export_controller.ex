@@ -1,6 +1,7 @@
 defmodule LockedInWeb.ExportController do
   use LockedInWeb, :controller
   alias LockedIn.Accounts.User
+  alias LockedIn.Accounts
   action_fallback LockedInWeb.FallbackController
   import Saxy.XML
 
