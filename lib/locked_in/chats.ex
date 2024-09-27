@@ -25,7 +25,7 @@ defmodule LockedIn.Chats do
   def get_chat_by_users(user1_id,user2_id)  do
     Repo.one(
       from c in Chat,
-      preload: [:messages],
+      # preload: [:messages],
       where: fragment("LEAST(?, ?) = LEAST(\"user1_id\", \"user2_id\")", type(^user1_id, :integer), type(^user2_id, :integer)),
       where: fragment("GREATEST(?, ?) = GREATEST(\"user1_id\", \"user2_id\")", type(^user1_id, :integer), type(^user2_id, :integer))
     )
@@ -131,6 +131,7 @@ defmodule LockedIn.Chats do
 
   def read_messages(chat_id) do
     Repo.update_all(unread_query(chat_id), set: [is_read: true])
+    |> IO.inspect()
   end
 
   @doc """

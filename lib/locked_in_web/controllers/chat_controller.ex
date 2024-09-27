@@ -29,11 +29,9 @@
     render(conn, :show, chat: chat)
   end
 
-  def update(conn, %{"user2_id" => user2_id}) do
-    chat = Chats.read_chat(conn.assigns.current_user.id, user2_id)
-
-    with {:ok, %Chat{} = chat} <- Chats.update_messages(chat.id) do
-      render(conn, :show, chat: chat)
+  def update(conn, %{"user2_id" => _user2_id}) do
+    with {_, %Message{} = messages} <- Chats.read_messages(conn.assigns.chat.id) do
+      render(conn, :index, messages: messages)
     end
   end
 

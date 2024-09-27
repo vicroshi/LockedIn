@@ -10,7 +10,8 @@ defmodule LockedInWeb.MessageController do
   plug :ensure_connected
   plug :fetch_chat when action in [:index, :update]
   def index(conn, %{"user2_id" => _user_id}) do
-    messages = conn.assigns.chat.messages |> with_assoc([:receiver, :sender])
+    chat = conn.assigns.chat |> with_assoc(:messages)
+    messages = chat.messages |> with_assoc([:receiver, :sender])
     IO.inspect(messages)
     render(conn, :index, messages: messages)
   end
@@ -31,8 +32,9 @@ defmodule LockedInWeb.MessageController do
   end
 
   def update(conn, %{"user2_id" => _user2_id}) do
-    with {_, %Message{} = messages} <- Chats.read_messages(conn.assigns.chat.id) do
-      render(conn, :index, messages: messages)
+    with {n, nil} <- Chats.read_messages(conn.assigns.chat.id) do
+      chat = conn.assigns.chat |> with_assoc(:messages)
+      render(conn, :index, messages: chat.messages)
     end
   end
 
