@@ -821,6 +821,7 @@ defmodule LockedIn.Accounts do
             |> Changeset.cast(attrs, [])
             |> Changeset.put_assoc(:skills, skills)
             |> Changeset.cast_embed(:experience)
+            |> Changeset.cast_embed(:education)
             |> Changeset.put_change(:pfp, pfp)
           end)
       |> Multi.run(:user_skills, fn _repo, %{user: user} ->
