@@ -25,7 +25,7 @@ defmodule LockedIn.Jobs do
   end
 
   def mark_viewed(job_id, user_id) do
-    Repo.insert_all("job_views" , on_conflict: :nothing)
+    Repo.insert_all("job_views", [%{job_id: job_id, user_id: user_id}], on_conflict: :nothing)
   end
 
   def list_jobs_by_user(user_id) do
