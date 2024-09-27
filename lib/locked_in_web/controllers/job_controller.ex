@@ -12,7 +12,7 @@ defmodule LockedInWeb.JobController do
   end
 
   def mark_viewed(conn, %{"job_id" => id}) do
-    job = Jobs.get_job!(id) |> with_assoc([:user, :skills, :applications])
+    job = Jobs.get_job!(id) |> with_assoc([:user, :skills, [applications: :applicant]])
     case Jobs.mark_viewed(job.id,conn.assigns.current_user.id) do
       {1, _} -> conn
                 |> put_status(:created)
