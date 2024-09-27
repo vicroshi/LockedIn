@@ -61,7 +61,7 @@ defmodule LockedIn.Jobs do
         on: v.job_id == j.id and v.user_id == ^user_id,
         where: us.user_id == ^user_id,
         where: j.user_id != ^user_id,
-        group_by: j.id,
+        group_by: [j.id, v.job_id],
         select: %{j | matching_skills: count(js.skill_id), viewed: is_nil(v.job_id)}
         # select: j
     connections_jobs = Repo.all(
