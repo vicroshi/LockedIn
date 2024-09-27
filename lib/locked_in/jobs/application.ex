@@ -1,3 +1,4 @@
+
 defmodule LockedIn.Jobs.Application do
   use Ecto.Schema
   import Ecto.Changeset

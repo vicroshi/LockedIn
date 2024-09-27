@@ -27,7 +27,11 @@ defmodule LockedInWeb.ChatJSON do
       user_fname: other_user.firstname,
       user_lname: other_user.lastname,
       user_pfp: other_user.pfp,
-      is_read: if !is_nil(chat.latest_message) do chat.latest_message.is_read end,
+      is_read: if !is_nil(chat.latest_message) and chat.latest_message.receiver.id == user.id do
+                chat.latest_message.is_read
+               else
+                true
+               end,
       latest_message: if !is_nil(chat.latest_message) do LockedInWeb.MessageJSON.show(%{message: chat.latest_message}) else nil end
     }
   end
