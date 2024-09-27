@@ -103,6 +103,7 @@ profile.tprof	Profiles the given file or expression with tprof
 release	Assembles a self-contained release
 release.init	Generates sample files for releases
 run	Runs the current application
+rustler.new	Creates a new Rustler project.
 setup	Alias defined in mix.exs
 swoosh.mailbox.server	Starts the mailbox preview server
 tailwind	Invokes tailwind with the profile and args

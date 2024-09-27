@@ -39,16 +39,24 @@ defmodule LockedIn.Jobs do
         on: c.requestee_id == j.user_id and c.requester_id == ^user_id and c.has_accepted == true,
         left_join: v in "job_views",
         on: v.job_id == j.id and v.user_id == ^user_id,
+        left_join: a in assoc(j, :applications),
+        on: a.applicant_id == ^user_id,
         distinct: true,
-        select: %{j | matching_skills: 0, viewed: not is_nil(v.job_id)}
+        select: %{j | matching_skills: 0,
+                      viewed: not is_nil(v.job_id),
+                      applied: not is_nil(a.job_id)}
     reverse_connections_jobs_query =
       from j in Job,
         join: c in Connection,
         on: c.requester_id == j.user_id and c.requestee_id == ^user_id and c.has_accepted == true,
         left_join: v in "job_views",
         on: v.job_id == j.id and v.user_id == ^user_id,
+        left_join: a in assoc(j, :applications),
+        on: a.applicant_id == ^user_id,
         distinct: true,
-        select: %{j | matching_skills: 0, viewed: is_nil(v.job_id)}
+        select: %{j | matching_skills: 0,
+                      viewed: not is_nil(v.job_id),
+                      applied: not is_nil(a.job_id)}
     # Repo.all(from j in subquery(connections_jobs_query |> union(^reverse_connections_jobs_query)),
               # order_by: [desc: j.inserted_at])
     skills_intersection_query =
@@ -59,10 +67,14 @@ defmodule LockedIn.Jobs do
         on: us.skill_id == js.skill_id and us.public == true,
         left_join: v in "job_views",
         on: v.job_id == j.id and v.user_id == ^user_id,
+        left_join: a in assoc(j, :applications),
+        on: a.applicant_id == ^user_id,
         where: us.user_id == ^user_id,
         where: j.user_id != ^user_id,
-        group_by: [j.id, v.job_id],
-        select: %{j | matching_skills: count(js.skill_id), viewed: is_nil(v.job_id)}
+        group_by: [j.id, v.job_id, a.job_id],
+        select: %{j | matching_skills: count(js.skill_id),
+                      viewed: not is_nil(v.job_id),
+                      applied: not is_nil(a.job_id)}
         # select: j
     connections_jobs = Repo.all(
       connections_jobs_query

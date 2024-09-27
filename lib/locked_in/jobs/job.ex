@@ -9,6 +9,7 @@ defmodule LockedIn.Jobs.Job do
     field :company_name, :string
     field :location, :string
     field :viewed, :boolean, default: false, virtual: true
+    field :applied, :boolean, default: false, virtual: true
     many_to_many :skills, LockedIn.Skills.Skill, join_through: "job_skills", on_replace: :delete
     belongs_to :user, LockedIn.Accounts.User
     has_many :applications, LockedIn.Jobs.Application, foreign_key: :job_id
