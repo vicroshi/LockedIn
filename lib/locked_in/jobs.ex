@@ -40,7 +40,7 @@ defmodule LockedIn.Jobs do
         left_join: v in "job_views",
         on: v.job_id == j.id and v.user_id == ^user_id,
         distinct: true,
-        select: %{j | matching_skills: 0, viewed: is_nil(v.job_id)}
+        select: %{j | matching_skills: 0, viewed: not is_nil(v.job_id)}
     reverse_connections_jobs_query =
       from j in Job,
         join: c in Connection,

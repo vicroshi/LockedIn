@@ -13,7 +13,7 @@ defmodule LockedInWeb.JobController do
 
   def mark_viewed(conn, %{"job_id" => id}) do
     job = Jobs.get_job!(id)
-    case Jobs.mark_viewed(job,conn.assigns.current_user.id) do
+    case Jobs.mark_viewed(job.id,conn.assigns.current_user.id) do
       {1, _} -> conn
                 |> put_status(:created)
                 |> render(:show, post: Map.put(job,:viewed,true) |> IO.inspect())
