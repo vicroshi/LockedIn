@@ -37,16 +37,18 @@ defmodule LockedIn.Jobs do
       from j in Job,
         join: c in Connection,
         on: c.requestee_id == j.user_id and c.requester_id == ^user_id and c.has_accepted == true,
-        # where: c.requester_id == ^user_id  and c.has_accepted == true,
+        left_join: v in "job_views",
+        on: v.job_id == j.id and v.user_id == ^user_id,
         distinct: true,
-        select: %{j | matching_skills: 0}
+        select: %{j | matching_skills: 0, viewed: is_nil(v.job_id)}
     reverse_connections_jobs_query =
       from j in Job,
         join: c in Connection,
         on: c.requester_id == j.user_id and c.requestee_id == ^user_id and c.has_accepted == true,
-        # where: c.requestee_id == ^user_id  and c.has_accepted == true,
+        left_join: v in "job_views",
+        on: v.job_id == j.id and v.user_id == ^user_id,
         distinct: true,
-        select: %{j | matching_skills: 0}
+        select: %{j | matching_skills: 0, viewed: is_nil(v.job_id)}
     # Repo.all(from j in subquery(connections_jobs_query |> union(^reverse_connections_jobs_query)),
               # order_by: [desc: j.inserted_at])
     skills_intersection_query =
@@ -55,12 +57,16 @@ defmodule LockedIn.Jobs do
         on: js.job_id == j.id,
         join: us in Accounts.UserSkill,
         on: us.skill_id == js.skill_id and us.public == true,
+        left_join: v in "job_views",
+        on: v.job_id == j.id and v.user_id == ^user_id,
         where: us.user_id == ^user_id,
         where: j.user_id != ^user_id,
         group_by: j.id,
-        select: %{j | matching_skills: count(js.skill_id)}
+        select: %{j | matching_skills: count(js.skill_id), viewed: is_nil(v.job_id)}
         # select: j
-    connections_jobs = Repo.all(connections_jobs_query |> union_all(^reverse_connections_jobs_query))
+    connections_jobs = Repo.all(
+      connections_jobs_query
+      |> union_all(^reverse_connections_jobs_query))
     skills_intersection = Repo.all skills_intersection_query
     Enum.uniq_by(skills_intersection ++ connections_jobs, & &1.id)
     |> Enum.sort_by(& &1.inserted_at,  {:desc, DateTime})

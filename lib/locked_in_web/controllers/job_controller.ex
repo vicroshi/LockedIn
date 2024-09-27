@@ -12,10 +12,11 @@ defmodule LockedInWeb.JobController do
   end
 
   def mark_viewed(conn, %{"job_id" => id}) do
-    case Jobs.mark_viewed(conn.assigns.post.id,conn.assigns.current_user.id) do
+    job = Jobs.get_job!(id)
+    case Jobs.mark_viewed(job,conn.assigns.current_user.id) do
       {1, _} -> conn
                 |> put_status(:created)
-                |> render(:show, post: Map.put(conn.assigns.post,:viewed,true) |> IO.inspect())
+                |> render(:show, post: Map.put(job,:viewed,true) |> IO.inspect())
       {0, _} -> json(conn, %{errors: "error creating view"})
     end
   end
