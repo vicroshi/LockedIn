@@ -124,13 +124,13 @@ defmodule LockedIn.Chats do
     |> Repo.update()
   end
 
-  def unread_query(chat_id) do
+  def unread_query(chat_id, user_id) do
       from m in Message,
-      where: m.chat_id == ^chat_id and m.is_read == false
+      where: m.chat_id == ^chat_id and m.is_read == false and m.receiver_id == ^user_id
   end
 
-  def read_messages(chat_id) do
-    Repo.update_all(unread_query(chat_id), set: [is_read: true])
+  def read_messages(chat_id, user_id) do
+    Repo.update_all(unread_query(chat_id,user_id), set: [is_read: true])
     |> IO.inspect()
   end
 
