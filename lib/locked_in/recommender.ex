@@ -1,6 +1,6 @@
 defmodule LockedIn.Recommender do
   use Rustler, otp_app: :locked_in, crate: "recommender"
-  def job_recommendations(_user, _jobs, _views, _applies, _skills) do
+  def job_recommendations(_user, _jobs, _views, _applies, _skills, _recommendations) do
     error()
   end
 

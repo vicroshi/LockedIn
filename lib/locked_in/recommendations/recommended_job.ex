@@ -1,8 +1,8 @@
-defmodule LockedIn.Recommendations.JobRating do
+defmodule LockedIn.Recommendations.RecommendedJob do
   use Ecto.Schema
   import Ecto.Changeset
   @primary_key false
-  schema "job_ratings" do
+  schema "recommended_jobs" do
     field :rating, :float
     belongs_to :user, LockedIn.Accounts.User
     belongs_to :job, LockedIn.Jobs.Job

@@ -2,7 +2,7 @@ defmodule LockedIn.Recommendations do
 
   import Ecto.Query, warn: false
   alias LockedIn.Repo
-  alias LockedIn.Recommendations.JobRating
+  alias LockedIn.Recommendations.RecJob
 
   def insert_ratings_jobs(ratings) do
     # timestamp = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
@@ -19,7 +19,7 @@ defmodule LockedIn.Recommendations do
   # Repo.insert_all(JobRating, entries, on_conflict: :replace_all, conflict_target: [:user_id, :job_id])
     timestamp =
       DateTime.utc_now()
-      # |> NaiveDateTime.truncate(:second)
+      |> DateTime.truncate(:second)
 
     placeholders = %{timestamp: timestamp}
     Enum.map(ratings, fn r ->
@@ -27,7 +27,7 @@ defmodule LockedIn.Recommendations do
       inserted_at: {:placeholder,  :timestamp}, updated_at: {:placeholder,  :timestamp}}
     end)
     |>
-    Enum.chunk_every(10000)
+    Enum.chunk_every(20000)
     |> Enum.each(fn chunk ->
       Repo.insert_all(JobRating, chunk, placeholders: placeholders,  on_conflict: :replace_all, conflict_target: [:user_id, :job_id])
     end)

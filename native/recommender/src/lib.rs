@@ -133,7 +133,7 @@ fn print_ratings(rating: &Array2<f64>, user_ids: &Vec<User>, post_ids: &Vec<Job>
 #[rustler::nif]
 // fn main( user: Vec<User>) -> i32{
 // fn construct_job_matrix( users: Vec<User>, jobs: Vec<Job>, job_views: Vec<(i64,i64)>, job_applications: Vec<(i64,i64)>, matching_skills: Vec<MatchingSkills>) -> Result<Vec<ResourceArc<Rec>>, Error> {
-fn job_recommendations( users: Vec<User>, jobs: Vec<Job>, job_views: Vec<(i64,i64)>, job_applications: Vec<(i64,i64)>, matching_skills: Vec<MatchingSkills>) -> Result< Vec<Rec>, Error> {
+fn job_recommendations( users: Vec<User>, jobs: Vec<Job>, job_views: Vec<(i64,i64)>, job_applications: Vec<(i64,i64)>, matching_skills: Vec<MatchingSkills>, recommended: Vec<Rec>) -> Result< Vec<Rec>, Error> {
     let mut users_m = HashMap::new();
     let mut jobs_m = HashMap::new();
     for i in 0..users.len() {
@@ -141,7 +141,7 @@ fn job_recommendations( users: Vec<User>, jobs: Vec<Job>, job_views: Vec<(i64,i6
     }
     for i in 0..jobs.len() {
         jobs_m.insert(jobs[i].id, i as i64);
-    }
+    }\
     let mut ratings = Array2::<f64>::from_elem((users_m.len(), jobs_m.len()), -1.0);
     for i in 0..matching_skills.len() {
         let user_id = matching_skills[i].user_id;
