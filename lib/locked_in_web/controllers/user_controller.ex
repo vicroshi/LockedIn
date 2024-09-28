@@ -21,6 +21,11 @@ defmodule LockedInWeb.UserController do
     |> send_resp(200, json)
   end
 
+  def search(conn, %{"firstname"=>firstname, "lastname" => lastname}) do
+    users = Accounts.get_users_by_names(firstname, lastname)
+    render(conn, :index, users: users)
+  end
+
   def index(conn, _params) do
     users = Accounts.users(conn.assigns.current_user.id)
     render(conn, :index, users: users)

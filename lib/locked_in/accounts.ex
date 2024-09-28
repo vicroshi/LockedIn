@@ -773,6 +773,22 @@ defmodule LockedIn.Accounts do
     # connection = get_connection()
   end
 
+  def get_users_by_names(firstname, lastname) do
+    q =  from u in User
+    q =
+      if String.length(firstname)>0 do
+        where(q, [u], like(u.firstname, ^"#{firstname}%"))
+      else
+        q
+      end
+    q =
+      if String.length(lastname)>0 do
+        where(q, [u], like(u.lastname, ^"#{lastname}%"))
+      else
+        q
+      end
+    Repo.all(q)
+  end
 
 
 

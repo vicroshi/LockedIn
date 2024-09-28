@@ -59,7 +59,7 @@ defmodule LockedInWeb.Router do
     get "/users/:user_id/liked_posts", UserController, :liked_posts
     get "/feed", UserController, :feed
     get "/skills", SkillController, :index
-
+    get "/network", UserController, :search
     # get "/users/:user_id/profile", UserController, :profile
     resources "/posts", PostController, except: [:new, :edit], param: "post_id"
     scope "/posts/:post_id" do
