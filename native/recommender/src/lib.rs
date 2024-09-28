@@ -133,7 +133,7 @@ fn print_ratings(rating: &Array2<f64>, user_ids: &Vec<User>, post_ids: &Vec<Job>
 #[rustler::nif]
 // fn main( user: Vec<User>) -> i32{
 // fn construct_job_matrix( users: Vec<User>, jobs: Vec<Job>, job_views: Vec<(i64,i64)>, job_applications: Vec<(i64,i64)>, matching_skills: Vec<MatchingSkills>) -> Result<Vec<ResourceArc<Rec>>, Error> {
-fn job_recommendations( users: Vec<User>, jobs: Vec<Job>, job_views: Vec<(i64,i64)>, job_applications: Vec<(i64,i64)>, matching_skills: Vec<MatchingSkills>, recommended: Vec<Rec>) -> Result< Vec<Rec>, Error> {
+fn job_recommendations( users: Vec<User>, jobs: Vec<Job>, job_views: Vec<(i64,i64)>, job_applications: Vec<(i64,i64)>, matching_skills: Vec<MatchingSkills>, recommended: Vec<jobRec>) -> Result< Vec<jobRec>, Error> {
     let mut users_m = HashMap::new();
     let mut jobs_m = HashMap::new();
     for i in 0..users.len() {
@@ -196,3 +196,75 @@ fn job_recommendations( users: Vec<User>, jobs: Vec<Job>, job_views: Vec<(i64,i6
 }
 
 rustler::init!("Elixir.LockedIn.Recommender");
+
+
+
+
+fn post_recommendations(users: Vec<User>, posts: Vec<Post>, post_views: Vec<(i64,i64)>, likes: Vec<(i64,i64)>, comments: Vec<(i64,i64)>) -> Result< Vec<postRec>, Error> {
+    let mut users_m = HashMap::new();
+    let mut posts_m = HashMap::new();
+    for i in 0..users.len() {
+        users_m.insert(users[i].id, i as i64);
+    }
+    for i in 0..posts_m.len() {
+        posts_m.insert(posts[i].id, i as i64);
+    }
+    let mut ratings = Array2::<f64>::from_elem((users_m.len(), posts_m.len()), -1.0);
+    //mporei na exw kanei like/comment xwris na exw kanei like, ara prepei na prosthesw kai +1 gia to viewed.
+    //meta, kanontas traverse to viewed den ksanaprosthetw se osa exw brei idi edw ^
+
+    for i in 0..post_views.len() {
+        let user_id = likes[i].0;
+        let post_id = likes[i].1;
+        let user_idx = users_m.get(&user_id).unwrap();
+        let post_idx = posts_m.get(&post_id).unwrap();
+        if ratings[[*user_idx as usize, *post_idx as usize]] == -1.0 {
+            ratings[[*user_idx as usize, *post_idx as usize]] = 0.0;
+        }
+        ratings[[*user_idx as usize, *post_idx as usize]] += 1.0; 
+    }
+
+    for i in 0..likes.len() {
+        let user_id = likes[i].0;
+        let post_id = likes[i].1;
+        let user_idx = users_m.get(&user_id).unwrap();
+        let post_idx = posts_m.get(&post_id).unwrap();
+        // if ratings[[*user_idx as usize, *post_idx as usize]] == -1.0 {
+        //     ratings[[*user_idx as usize, *post_idx as usize]] = 0.0;
+        // }
+        //prepei na elegksw an exei kanei kai view gia na kserw an tha prosthesw 4+1 i apla 4
+        if ratings[[*user_idx as usize, *post_idx as usize]] == 1.0{ //exei kanei view, den to prosthetw to 1
+            ratings[[*user_idx as usize, *post_idx as usize]] += 4.0;
+        }
+        else ratings[[*user_idx as usize, *post_idx as usize]] += 5.0;  // 4 gia like +1 gia automatic view.
+    }
+    for i in 0..comments.len() {
+        let user_id = comments[i].0;
+        let post_id = comments[i].1;
+        let user_idx = users_m.get(&user_id).unwrap();
+        let post_idx = posts_m.get(&post_id).unwrap();
+        //prepei na elegksw an exei kanei kai like + view wste na kserw an tha prosthesw 5+1 i apla 5
+
+        { //exei kanei view i like, den to prosthetw to 1,exei mpei apo prin
+        if  ratings[[*user_idx as usize, *post_idx as usize]] == 5.0 
+            || ratings[[*user_idx as usize, *post_idx as usize]] == 1.0 
+                ratings[[*user_idx as usize, *post_idx as usize]] += 5.0;
+        }
+        else ratings[[*user_idx as usize, *post_idx as usize]] += 6.0;  
+    }
+
+    ratings = matrix_factorization(&ratings);
+    let mut recs = Vec::new();
+    for i in 0..users.len() {
+        for j in 0..posts.len() {
+            recs.push(Rec {
+                user_id: users[i].id,
+                post_id: posts[j].id,
+                rating: ratings[[i,j]],
+            });
+        }
+    }
+    print_ratings_to_file(&ratings, &users, &posts);
+    Ok(recs)
+
+}
