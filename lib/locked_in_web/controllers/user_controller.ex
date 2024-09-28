@@ -86,7 +86,7 @@ defmodule LockedInWeb.UserController do
 
     case Accounts.update_profile(conn.assigns.current_user, profile_params) do
       {:ok, user} ->
-        render(conn, :profile, user: user)
+        render(conn, :profile, user: user |> with_assoc([user_skills: :skill]))
       {:error, %Ecto.Changeset{} = changeset} ->
         IO.inspect(changeset)
         {:error, changeset}
