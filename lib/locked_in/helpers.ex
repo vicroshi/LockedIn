@@ -21,28 +21,45 @@ defmodule LockedIn.Helpers do
 
 require Ecto.Query
 def test_recommender do
-  users = Repo.all(LockedIn.Accounts.User |> limit(10))
-  jobs = Repo.all(LockedIn.Jobs.Job |> limit(5))
-  views = Repo.all(
-    from u in LockedIn.Accounts.User,
-    join: v in "job_views",
-    on: v.user_id == u.id,
-    join: j in LockedIn.Jobs.Job,
-    on: v.job_id == j.id,
-    group_by: [u.id, j.id],
-    select: %{user_id: u.id, job_id: j.id}
+  users = Repo.all(LockedIn.Accounts.User |> order_by(:id))
+  jobs = Repo.all(
+    from j in LockedIn.Jobs.Job,
+    left_join: s in "job_skills",
+    on: s.job_id == j.id,
+    group_by: j.id,
+    order_by: [:id],
+    select: %{id: j.id, user_id: j.user_id, count: count(s.job_id)}
   )
-  |> Enum.map(fn %{user_id: user_id, job_id: job_id} -> {user_id, job_id} end)
-  applies = Repo.all(
-    from u in LockedIn.Accounts.User,
-    join: a in LockedIn.Jobs.Application,
-    on: a.applicant_id == u.id,
-    join: j in LockedIn.Jobs.Job,
-    on: a.job_id == j.id,
-    group_by: [u.id, j.id],
-    select: %{user_id: u.id, job_id: j.id}
-  ) |> Enum.map(fn %{user_id: user_id, job_id: job_id} -> {user_id, job_id} end)
 
+  # views = Repo.all(
+  #   from u in LockedIn.Accounts.User,
+  #   join: v in "job_views",
+  #   on: v.user_id == u.id,
+  #   join: j in LockedIn.Jobs.Job,
+  #   on: v.job_id == j.id,
+  #   group_by: [u.id, j.id],
+  #   select: %{user_id: u.id, job_id: j.id}
+  # )
+  # |> Enum.map(fn %{user_id: user_id, job_id: job_id} -> {user_id, job_id} end)
+
+  views = Repo.all(
+    from v in "job_views",
+    select: {v.user_id, v.job_id}
+  )
+
+  # applies = Repo.all(
+  #   from u in LockedIn.Accounts.User,
+  #   join: a in LockedIn.Jobs.Application,
+  #   on: a.applicant_id == u.id,
+  #   join: j in LockedIn.Jobs.Job,
+  #   on: a.job_id == j.id,
+  #   group_by: [u.id, j.id],
+  #   select: %{user_id: u.id, job_id: j.id}
+  # ) |> Enum.map(fn %{user_id: user_id, job_id: job_id} -> {user_id, job_id} end)
+  applies = Repo.all(
+    from a in LockedIn.Jobs.Application,
+    select: {a.applicant_id, a.job_id}
+  )
   matching = Repo.all(
     from u in LockedIn.Accounts.User,
     join: us in "user_skills",
@@ -56,14 +73,7 @@ def test_recommender do
     group_by: [u.id, j.id],
     select: %{user_id: u.id, job_id: j.id, count: count(s.id)}
   )
-  # |>
-  # IO.inspect()
-  # users_map = users|>Enum.with_index()|>Enum.map( fn {v, k} -> {k, %LockedIn.Accounts.User{id: v.id}} end)
   Recommender.construct_job_matrix(users, jobs, views, applies, matching)
-  # users = Enum.with_index(Repo.all(LockedIn.Accounts.User |> limit(10)), fn user, index ->
-    # {index, user}
-  # end)
-  # Enum.at(users, 0)
 end
 
 end
