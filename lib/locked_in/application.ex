@@ -2,8 +2,7 @@ defmodule LockedIn.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
-alias Ecto.Query.Builder.Lock
-
+  alias Ecto.Query.Builder.Lock
   use Application
   @impl true
   def start(_type, _args) do
@@ -17,7 +16,8 @@ alias Ecto.Query.Builder.Lock
       # Start a worker by calling: LockedIn.Worker.start_link(arg)
       # {LockedIn.Worker, arg},
       # Start to serve requests, typically the last entry
-      LockedInWeb.Endpoint
+      LockedInWeb.Endpoint,
+      # LockedIn.JobsTask
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
