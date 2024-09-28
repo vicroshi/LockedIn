@@ -48,7 +48,7 @@ fn print_ratings(rating: &Array2<f64>, user_ids: &Vec<User>, post_ids: &Vec<Job>
 
 #[rustler::nif]
 // fn main( user: Vec<User>) -> i32{
-fn construct_job_matrix( users: Vec<User>, jobs: Vec<Job>, job_views: Vec<(i64,i64)>, job_applications: Vec<(i64,i64), matching_skills: Vec<MatchingSkills>) ->    i64{
+fn construct_job_matrix( users: Vec<User>, jobs: Vec<Job>, job_views: Vec<(i64,i64)>, job_applications: Vec<(i64,i64)>, matching_skills: Vec<MatchingSkills>) ->    i64{
     // jobs.unwrap_or(vec![]).len() as i64
     // users[0].id
     let mut users_m = HashMap::new();
