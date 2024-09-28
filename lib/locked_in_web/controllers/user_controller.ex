@@ -71,7 +71,7 @@ defmodule LockedInWeb.UserController do
   def update(conn, %{"email" => _new_email} = params) do
     user = conn.assigns.current_user
     with {:ok, %User{} = user} <- Accounts.update_user_email(user, params) do
-      render(conn, :show, user: user)
+      render(conn, :show, user: user |> with_assoc([user_skills: :skills]))
     end
   end
 

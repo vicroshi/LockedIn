@@ -30,8 +30,9 @@ defimpl Saxy.Builder, for: LockedIn.Accounts.UserEducation  do
       "Education",
       [],
       [
-        element("Degree",[], user_education.degree),
-        element("School",[], user_education.school),
+        element("Degree",[], LockedIn.Helpers.sanitize(user_education.degree)),
+        element("School",[], LockedIn.Helpers.sanitize(user_education.school)),
+        # element("School",[], user_education.school),
         element("StartDate",[], user_education.start_date),
         element("EndDate",[], user_education.end_date),
         element("Public",[], user_education.public)

@@ -11,3 +11,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 rustler = "0.34.0"
+ndarray = "0.15"
+ndarray-rand = "0.14"
+rand = "0.8"

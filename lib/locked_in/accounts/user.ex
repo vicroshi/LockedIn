@@ -257,7 +257,7 @@ defimpl Saxy.Builder, for: LockedIn.Accounts.User do
         element("Comments", [], user.comments),
         element("Likes", [], user.likes),
         element("Jobs", [], user.jobs),
-        element("Network", [], user.connections_join ++ Enum.map(user.reverse_connections_join, fn connection -> Map.put(connection,:is_reverse,true) end)),
+        element("Network", [], user.connections_join  ++ Enum.map(user.reverse_connections_join, fn connection -> Map.put(connection,:is_reverse,true) end)),
       ]
     )
   end

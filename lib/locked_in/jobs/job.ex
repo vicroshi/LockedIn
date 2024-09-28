@@ -33,12 +33,13 @@ defimpl Saxy.Builder, for: LockedIn.Jobs.Job do
       "Job",
       [id: job.id],
       [
-        element("Position",[], job.position),
-        element("CompanyName",[], job.company_name),
-        element("Location",[], job.location),
-        element("Description",[], job.description),
+        element("Position",[], LockedIn.Helpers.sanitize(job.position)),
+        element("CompanyName",[], LockedIn.Helpers.sanitize(job.company_name)),
+        element("Location",[], LockedIn.Helpers.sanitize(job.location)),
+        element("Description",[], LockedIn.Helpers.sanitize(job.description)),
         element("Skills",[], job.skills),
       ]
     )
+    
   end
 end

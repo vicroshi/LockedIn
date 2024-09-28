@@ -101,9 +101,11 @@ defmodule LockedInWeb.Router do
       end
     end
   end
+  get "/api/skills", LockedInWeb.SkillController, :index
   scope "/api", LockedInWeb do
     pipe_through [:api, :authenticted, :is_admin]
     scope "/admin" do
+      get "/export_xml", ExportController, :export_xml
       get "users/export", ExportController, :export
       resources "/users", UserController, except: [:new, :create, :edit], param: "user_id"
       scope "/users/:user_id" do
