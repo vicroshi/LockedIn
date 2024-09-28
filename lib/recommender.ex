@@ -1,5 +1,9 @@
 defmodule Recommender do
   use Rustler, otp_app: :locked_in, crate: "recommender"
+  def main(_user) do
+    error()
+  end
+
   def construct_matrix(_users, _jobs, _ratings) do
     error()
   end
