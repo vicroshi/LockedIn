@@ -777,13 +777,13 @@ defmodule LockedIn.Accounts do
     q =  from u in User
     q =
       if String.length(firstname)>0 do
-        where(q, [u], like(u.firstname, ^"#{firstname}%"))
+        where(q, [u], ilike(u.firstname, ^"#{firstname}%"))
       else
         q
       end
     q =
       if String.length(lastname)>0 do
-        where(q, [u], like(u.lastname, ^"#{lastname}%"))
+        where(q, [u], ilike(u.lastname, ^"#{lastname}%"))
       else
         q
       end
