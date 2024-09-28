@@ -1,4 +1,4 @@
-use rustler::NifMap;
+use rustler::{NifMap, Resource, ResourceArc, Error, Env, NifStruct};
 use ndarray::{Array2};
 use std::collections::HashMap;
 use std::fs::File;
@@ -22,10 +22,22 @@ struct Job {
 }
 #[derive(NifMap)]
 struct MatchingSkills {
+    pub user_id: i64,
+    pub job_id: i64,
+    pub count: i64,
+}
+
+#[derive(NifMap)]
+// #[derive(Debug, NifStruct)]
+// #[module = "LockedIn.Recommendations.JobRating"]
+struct Rec {
     user_id: i64,
     job_id: i64,
-    count: i64,
+    rating: f64,
 }
+// #[rustler::resource_impl]
+// impl Resource for Rec {}
+
 
 
 fn print_ratings_to_file(rating: &Array2<f64>, user_ids: &Vec<User>, post_ids: &Vec<Job>) -> io::Result<()>{
@@ -120,9 +132,8 @@ fn print_ratings(rating: &Array2<f64>, user_ids: &Vec<User>, post_ids: &Vec<Job>
 
 #[rustler::nif]
 // fn main( user: Vec<User>) -> i32{
-fn construct_job_matrix( users: Vec<User>, jobs: Vec<Job>, job_views: Vec<(i64,i64)>, job_applications: Vec<(i64,i64)>, matching_skills: Vec<MatchingSkills>) ->    i64{
-    // jobs.unwrap_or(vec![]).len() as i64
-    // users[0].id
+// fn construct_job_matrix( users: Vec<User>, jobs: Vec<Job>, job_views: Vec<(i64,i64)>, job_applications: Vec<(i64,i64)>, matching_skills: Vec<MatchingSkills>) -> Result<Vec<ResourceArc<Rec>>, Error> {
+fn job_recommendations( users: Vec<User>, jobs: Vec<Job>, job_views: Vec<(i64,i64)>, job_applications: Vec<(i64,i64)>, matching_skills: Vec<MatchingSkills>) -> Result< Vec<Rec>, Error> {
     let mut users_m = HashMap::new();
     let mut jobs_m = HashMap::new();
     for i in 0..users.len() {
@@ -170,11 +181,18 @@ fn construct_job_matrix( users: Vec<User>, jobs: Vec<Job>, job_views: Vec<(i64,i
         // if  
     // }
     ratings = matrix_factorization(&ratings);
-
+    let mut recs = Vec::new();
+    for i in 0..users.len() {
+        for j in 0..jobs.len() {
+            recs.push(Rec {
+                user_id: users[i].id,
+                job_id: jobs[j].id,
+                rating: ratings[[i,j]],
+            });
+        }
+    }
     print_ratings_to_file(&ratings, &users, &jobs);
-
-    // print_ratings(&ratings, &users, &jobs);
-    1
+    Ok(recs)
 }
 
 rustler::init!("Elixir.LockedIn.Recommender");

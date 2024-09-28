@@ -31,31 +31,12 @@ def test_recommender do
     select: %{id: j.id, user_id: j.user_id, count: count(s.job_id)}
   )
 
-  # views = Repo.all(
-  #   from u in LockedIn.Accounts.User,
-  #   join: v in "job_views",
-  #   on: v.user_id == u.id,
-  #   join: j in LockedIn.Jobs.Job,
-  #   on: v.job_id == j.id,
-  #   group_by: [u.id, j.id],
-  #   select: %{user_id: u.id, job_id: j.id}
-  # )
-  # |> Enum.map(fn %{user_id: user_id, job_id: job_id} -> {user_id, job_id} end)
 
   views = Repo.all(
     from v in "job_views",
     select: {v.user_id, v.job_id}
   )
 
-  # applies = Repo.all(
-  #   from u in LockedIn.Accounts.User,
-  #   join: a in LockedIn.Jobs.Application,
-  #   on: a.applicant_id == u.id,
-  #   join: j in LockedIn.Jobs.Job,
-  #   on: a.job_id == j.id,
-  #   group_by: [u.id, j.id],
-  #   select: %{user_id: u.id, job_id: j.id}
-  # ) |> Enum.map(fn %{user_id: user_id, job_id: job_id} -> {user_id, job_id} end)
   applies = Repo.all(
     from a in LockedIn.Jobs.Application,
     select: {a.applicant_id, a.job_id}
@@ -73,7 +54,8 @@ def test_recommender do
     group_by: [u.id, j.id],
     select: %{user_id: u.id, job_id: j.id, count: count(s.id)}
   )
-  Recommender.construct_job_matrix(users, jobs, views, applies, matching)
+  results = Recommender.job_recommendations(users, jobs, views, applies, matching)
+  LockedIn.Recommendations.insert_ratings_jobs(results)
 end
 
 end
