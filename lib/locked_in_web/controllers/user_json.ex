@@ -76,7 +76,7 @@ defmodule LockedInWeb.UserJSON do
       status: user.status,
       education: for(education <- user.education, do: data(education)),
       experience: for(experience <- user.experience, do: data(experience)),
-      skills: for(skill <- user.skills, do: %{"name" => skill.name, "public" => skill.public}),
+      skills: for(user_skill <- user.user_skills, do: %{"name" => user_skill.skill.name, "public" => user_skill.public}),
     }
   end
 
