@@ -22,8 +22,9 @@ defmodule LockedIn.Helpers do
 require Ecto.Query
 def test_recommender do
   users = Repo.all(LockedIn.Accounts.User |> limit(10))
+  jobs = Repo.all(LockedIn.Jobs.Job |> limit(5))
   # users_map = users|>Enum.with_index()|>Enum.map( fn {v, k} -> {k, %LockedIn.Accounts.User{id: v.id}} end)
-  Recommender.main(users,[])
+  Recommender.main(users, jobs)
   # users = Enum.with_index(Repo.all(LockedIn.Accounts.User |> limit(10)), fn user, index ->
     # {index, user}
   # end)

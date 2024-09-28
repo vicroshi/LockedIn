@@ -58,6 +58,8 @@ defmodule LockedInWeb.Router do
     get "/connections/requests", ConnectionController, :request_index
     get "/users/:user_id/liked_posts", UserController, :liked_posts
     get "/feed", UserController, :feed
+    get "/skills", SkillController, :index
+
     # get "/users/:user_id/profile", UserController, :profile
     resources "/posts", PostController, except: [:new, :edit], param: "post_id"
     scope "/posts/:post_id" do
@@ -101,7 +103,6 @@ defmodule LockedInWeb.Router do
       end
     end
   end
-  get "/api/skills", LockedInWeb.SkillController, :index
   scope "/api", LockedInWeb do
     pipe_through [:api, :authenticted, :is_admin]
     scope "/admin" do
