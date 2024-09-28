@@ -2,6 +2,7 @@ defmodule LockedIn.Accounts.UserEducation do
   use Ecto.Schema
   import Ecto.Changeset
   @derive {Jason.Encoder, except: []}
+  @primary_key false
   embedded_schema do
     field :school, :string
     field :degree, :string
@@ -12,10 +13,10 @@ defmodule LockedIn.Accounts.UserEducation do
   end
 
   @doc false
-  def changeset(user_education, attrs) do
+  def changeset(user_education, attrs) doe
     user_education
     |> cast(attrs, [:school, :degree, :field_of_study, :start_date, :end_date, :public])
-    |> validate_required([:school, :degree, :field_of_study, :start_date])
+    |> validate_required([:school, :degree, :start_date])
   end
 
 end

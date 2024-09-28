@@ -76,12 +76,12 @@ defmodule LockedInWeb.UserController do
   end
 
   def update(conn, %{"skills" => skills, "experience" => experience, "education" => education, "pfp" => _pfp} = profile_params) do
-    IO.inspect(experience)
-    profile_params = profile_params
-    |>
-    Map.put("skills", Jason.decode!(skills))
-    |> Map.put("experience", Jason.decode!(experience))
-    |> Map.put("education", Jason.decode!(education))
+    # IO.inspect(experience)
+    # profile_params = profile_params
+    # |>
+    # Map.put("skills", Jason.decode!(skills))
+    # |> Map.put("experience", Jason.decode!(experience))
+    # |> Map.put("education", Jason.decode!(education))
     IO.inspect(profile_params)
 
     case Accounts.update_profile(conn.assigns.current_user, profile_params) do
