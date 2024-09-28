@@ -99,10 +99,13 @@ defmodule LockedInWeb.ExportController do
   defp generate_xml(users,options \\ []) do
     IO.inspect(hd(users))
     root = element("Users",[count: length(users)],users)
-    XmlBuilder.generate(root)
-    # Saxy.encode!(root,[])
+    # XmlBuilder.generate(root)
+    xml = Saxy.encode!(root,[])
+    # xml
     # |> Floki.parse_document!()
     # |> Floki.raw_html(pretty: true)
+    # |> IO.puts()
+    # xml
     # users_xml = Enum.map(users, fn user ->
     #   user_elements = Enum.map(options, fn option ->
     #     element(option,[], Map.get(user, option))

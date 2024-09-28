@@ -1,4 +1,4 @@
-# NIF for Elixir.Recommender
+# NIF for Elixir.LockedIn.Recommender
 
 ## To build the NIF module:
 
@@ -7,7 +7,7 @@
 ## To load the NIF:
 
 ```elixir
-defmodule Recommender do
+defmodule LockedIn.Recommender do
   use Rustler, otp_app: :locked_in, crate: "recommender"
 
   # When your NIF is loaded, it will override this function.

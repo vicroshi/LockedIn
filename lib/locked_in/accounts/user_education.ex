@@ -2,7 +2,9 @@ defmodule LockedIn.Accounts.UserEducation do
   use Ecto.Schema
   import Ecto.Changeset
   @derive {Jason.Encoder, except: []}
+
   @primary_key false
+
   embedded_schema do
     field :school, :string
     field :degree, :string
@@ -13,7 +15,7 @@ defmodule LockedIn.Accounts.UserEducation do
   end
 
   @doc false
-  def changeset(user_education, attrs) doe
+  def changeset(user_education, attrs) do
     user_education
     |> cast(attrs, [:school, :degree, :field_of_study, :start_date, :end_date, :public])
     |> validate_required([:school, :degree, :start_date])
@@ -25,12 +27,11 @@ defimpl Saxy.Builder, for: LockedIn.Accounts.UserEducation  do
   import Saxy.XML
   def build(user_education) do
     element(
-      String.capitalize(user_education.degree),
+      "Education",
       [],
       [
+        element("Degree",[], user_education.degree),
         element("School",[], user_education.school),
-        # element("Degree",[], ),
-        element("FieldOfStudy",[], user_education.field_of_study),
         element("StartDate",[], user_education.start_date),
         element("EndDate",[], user_education.end_date),
         element("Public",[], user_education.public)

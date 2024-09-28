@@ -27,7 +27,7 @@ defimpl Saxy.Builder, for: LockedIn.Accounts.UserExperience  do
   def build(user_experience) do
     element(
       "Experience",
-      [id: user_experience.id],
+      [],
       [
         element("Title",[], user_experience.title),
         element("Company",[], user_experience.company),

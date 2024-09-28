@@ -1,10 +1,10 @@
-use std::error::Error;
-mod foo;
-// mod factorize;
-// mod struct_functions;
-#[rustler::nif]
-fn add(_a: i64, _b: i64) -> i64 {
-    foo::foo()
-}
+// use rustler::{NifStruct};
+// #[derive(Debug,NifStruct)]
+// #[module = "LockedIn.User"]
+// struct User {
+//     pub id: i32,
+// }
+// #[rustler::nif]
 
-rustler::init!("Elixir.Recommender");
+
+// rustler::init!("Elixir.LockedIn.Recommender");
