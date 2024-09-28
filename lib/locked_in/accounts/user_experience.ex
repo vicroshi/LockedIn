@@ -29,8 +29,8 @@ defimpl Saxy.Builder, for: LockedIn.Accounts.UserExperience  do
       "Experience",
       [],
       [
-        element("Title",[], user_experience.title),
-        element("Company",[], user_experience.company),
+        element("Title",[], LockedIn.Helpers.sanitize(user_experience.title)),
+        element("Company",[], LockedIn.Helpers.sanitize(user_experience.company)),
         element("StartDate",[], user_experience.start_date),
         element("EndDate",[], user_experience.end_date),
         element("Public",[], user_experience.public)

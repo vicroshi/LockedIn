@@ -96,12 +96,20 @@ defmodule LockedInWeb.ExportController do
     |> IO.inspect()
   end
 
+  def export_xml(conn, params) do
+    ids = params["userIds"]
+    users = Accounts.fetch_users_data(ids)
+    xml = generate_xml(users)
+    render(conn, "user_data.xml", xml: xml)
+  end
+
   defp generate_xml(users,options \\ []) do
     IO.inspect(hd(users))
     root = element("Users",[count: length(users)],users)
     # XmlBuilder.generate(root)
-    xml = Saxy.encode!(root,[])
-    # xml
+    xml = Saxy.encode!(root,[version: "1.0", encoding: "UTF-8"])
+    IO.puts(xml)
+    xml
     # |> Floki.parse_document!()
     # |> Floki.raw_html(pretty: true)
     # |> IO.puts()
@@ -127,10 +135,10 @@ defmodule LockedInWeb.ExportController do
     end
 
     conn
-    |> put_resp_content_type(content_type)
+    # |> put_resp_content_type(content_type)
     |> put_resp_header("content-disposition", ~s(attachment; filename="#{filename}"))
-    |> put_resp_header("content-transfer-encoding", "binary")
-    |> put_resp_header("cache-control", "no-cache")
+    # |> put_resp_header("content-transfer-encoding", "binary")
+    # |> put_resp_header("cache-control", "no-cache")
     |> send_resp(200, content)
   end
 end
