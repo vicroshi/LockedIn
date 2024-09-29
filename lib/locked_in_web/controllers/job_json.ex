@@ -4,6 +4,14 @@ defmodule LockedInWeb.JobJSON do
   @doc """
   Renders a list of jobs.
   """
+  def index (%{jobs: jobs, meta: meta}) do
+    %{
+      data: for(job <- jobs, do: data(job)),
+      hasNextPage: meta.has_next_page?,
+      nextPage: meta.next_page,
+    }
+  end
+
   def index(%{jobs: jobs}) do
     %{data: for(job <- jobs, do: data(job))}
   end

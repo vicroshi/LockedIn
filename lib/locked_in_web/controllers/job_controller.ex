@@ -50,9 +50,13 @@ defmodule LockedInWeb.JobController do
     end
   end
 
-  def feed(conn, _params) do
-    jobs = Jobs.jobs_feed(conn.assigns.current_user.id)
-    render(conn, :index, jobs: jobs |> with_assoc([:user, :skills]))
+  def feed(conn, params) do
+    page = params["page"]
+    case Jobs.jobs_feed(conn.assigns.current_user.id, page) do
+      {:ok, {jobs, meta}} -> conn
+                             |> render(:index, jobs: jobs, meta: meta)
+      {:error, _} -> json(conn, %{errors: "error fetching job feed"})
+    end
   end
 
 end

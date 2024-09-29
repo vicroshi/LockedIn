@@ -31,7 +31,7 @@ defmodule LockedIn.Jobs do
     Repo.all(from(j in Job, where: j.user_id == ^user_id))
   end
 
-  def jobs_feed(user_id) do
+  def jobs_feed(user_id, page) do
     connections_jobs_query =
       from j in Job,
         join: c in Connection,
@@ -104,8 +104,9 @@ defmodule LockedIn.Jobs do
       on: c.has_accepted == true and (c.requester_id == j.user_id and c.requestee_id == ^user_id or c.requestee_id == j.user_id and c.requester_id == ^user_id),
       select: %{id: j.id}
 
-    feed = Repo.all(
+    feed_query =
       from j in subquery(jobs_with_matching_skills),
+      preload: [:skills, :user],
       left_join: v in "job_views",
       on: v.job_id == j.id and v.user_id == ^user_id,
       left_join: a in Application,
@@ -116,8 +117,10 @@ defmodule LockedIn.Jobs do
       where: j.id in subquery(recommended_jobs),
       or_where: j.id in subquery(connections_jobs),
       select: %{j | viewed: not is_nil(v.job_id), applied: not is_nil(a.job_id), recommended: not is_nil(rj.job_id)}
-    )
-    feed |> Repo.preload([:skills, :user])
+
+    params = %{page: page, page_size: 10, order_by: [:inserted_at, :id], order_directions: [:desc, :desc]}
+    # {atom, {feed, meta}} =
+      Flop.validate_and_run(feed_query, params)
   end
 
   @doc """

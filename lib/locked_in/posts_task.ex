@@ -19,9 +19,13 @@ defmodule LockedIn.PostsTask do
 
   def handle_info(:work, state) do
     {results, deletes} = get_recommendations()
-    # |>IO.inspect()
-    Recommendations.update_recommended_posts(results, deletes)
-    Logger.info("Got post ratings")
+    try do
+      Recommendations.update_recommended_posts(results, deletes)
+      Logger.info("Got post ratings")
+    rescue
+      e->
+      Logger.error("Error in post recommendations #{Exception.message(e)}")
+    end
     schedule_work()
     {:noreply, state}
   end
@@ -64,7 +68,12 @@ defmodule LockedIn.PostsTask do
       select: %{user_id: rp.user_id, post_id: rp.post_id,rating: rp.rating}
 
       )
-    # IO.inspect(recs, label: "Recommended Posts")
-    Recommender.post_recommendations(users, posts, views, likes, comments, recs)
+    try do
+      Recommender.post_recommendations(users, posts, views, likes, comments, recs)
+    rescue
+      e->
+      Logger.error("Error in post recommendations #{Exception.message(e)}")
+      {[],[]}
+    end
   end
 end

@@ -19,9 +19,13 @@ defmodule LockedIn.JobsTask do
 
   def handle_info(:work, state) do
     {results, deletes} = get_recommendations()
-    # |>IO.inspect()
-    Recommendations.update_recommended_jobs(results, deletes)
-    Logger.info("Got job ratings")
+    try do
+      Recommendations.update_recommended_jobs(results, deletes)
+      Logger.info("Got job ratings")
+      rescue
+      e->
+      Logger.error("Error in job recommendations #{Exception.message(e)}")
+    end
     schedule_work()
     {:noreply, state}
   end
@@ -68,7 +72,12 @@ defmodule LockedIn.JobsTask do
       select: %{user_id: u.id, job_id: j.id, count: count(s.id)}
     )
     recs = Repo.all(LockedIn.Recommendations.RecommendedJob)
-    IO.inspect(recs, label: "Recommended Jobs")
-    Recommender.job_recommendations(users, jobs, views, applies, matching, recs)
+    try do
+      Recommender.job_recommendations(users, jobs, views, applies, matching, recs)
+    rescue
+      e->
+      Logger.error("Error in job recommendations nif #{Exception.message(e)}")
+      {[], []}
+    end
   end
 end

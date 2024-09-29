@@ -3,6 +3,14 @@ defmodule LockedIn.Jobs.Job do
   import Ecto.Changeset
 
   @derive {Jason.Encoder, only: [:id, :description, :position, :company_name, :location, :user_id]}
+
+  @derive {Flop.Schema,
+           filterable: [:inserted_at],
+           sortable: [:inserted_at],
+           default_limit: 10,
+           max_limit: 100
+          }
+
   schema "jobs" do
     field :description, :string
     field :position, :string

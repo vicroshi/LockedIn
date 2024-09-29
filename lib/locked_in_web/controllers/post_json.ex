@@ -12,6 +12,7 @@ defmodule LockedInWeb.PostJSON do
       nextPage: meta.next_page,
       # start_cursor: meta.start_cursor
     }
+    
   end
 
   def index(%{posts: posts}) do
