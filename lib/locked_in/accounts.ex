@@ -130,7 +130,7 @@ defmodule LockedIn.Accounts do
     # # Enum.uniq_by(liked_posts ++ final_posts, & &1.id)
     # # |> Enum.sort_by(& &1.posted_at, {:desc,NaiveDateTime})
 
-  def get_feed(user) do
+  def get_feed(user, page) do
     user_id = user.id
 
       posts_with_count_query =
@@ -172,9 +172,8 @@ defmodule LockedIn.Accounts do
       or_where: c.requestee_id == ^user_id and c.requester_id == l.user_id,
       select: %{id: p.id}
 
-
-    feed = Repo.all(
-     from p in subquery(posts_with_count_query),
+    feed_query = from p in subquery(posts_with_count_query),
+      preload: [:user],
       left_join: v in "post_views",
       on: v.user_id == ^user_id and v.post_id == p.id,
       left_join: l in Like,
@@ -182,14 +181,25 @@ defmodule LockedIn.Accounts do
       left_join: rp in LockedIn.Recommendations.RecommendedPost,
       on: rp.post_id == p.id and rp.user_id == ^user_id,
       where: p.id in subquery(recommended_query),
+      or_where: p.user_id == ^user_id,
       or_where: p.id in subquery(liked_query),
       or_where: p.id in subquery(connections_liked_query),
       or_where: p.id in subquery(connections_query),
+      order_by: [desc: p.posted_at],
       select: %{p | like_count: p.like_count, comment_count: p.comment_count,
        liked: not is_nil(l.post_id), viewed: not is_nil(v.post_id), recommended: not is_nil(rp.post_id)}
-      )
-      IO.inspect(length(feed))
-      feed |> Repo.preload([:user])
+    # Repo.all(feed_query)
+    params =
+    # if is_nil(page) or  or String.to_integer(page) < 1 do
+      # %{page: 1, page_size: 10, order_by: [:posted_at, :id], order_directions: [:desc, :desc]}
+    # else
+      %{page: page, page_size: 10, order_by: [:posted_at, :id], order_directions: [:desc, :desc]}
+    # end
+
+    {atom, {results, meta}} = Flop.validate_and_run(feed_query, params)
+    # {atom, {results, meta}} = Flop.validate_and_run(feed_query, params)
+    # IO.inspect(meta)
+    {atom, {results, meta}}
   end
 
   # def get_feed(user) do

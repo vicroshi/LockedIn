@@ -122,12 +122,19 @@ defmodule LockedInWeb.UserController do
     |> render(:index, posts: liked_posts)
   end
 
-  def feed(conn, _params) do
+  def feed(conn, params) do
+    page = params["page"]
     user = conn.assigns.current_user
-    feed = Accounts.get_feed(user)
-    conn
-    |> put_view(LockedInWeb.PostJSON)
-    |> render(:index, posts: feed)
+    # feed = Accounts.get_feed(user, cursor)
+    # conn
+    # |> put_view(LockedInWeb.PostJSON)
+    # |> render(:index, posts: feed)
+    with {:ok, {feed, meta}} <- Accounts.get_feed(user, page) do
+      conn
+      |> put_view(LockedInWeb.PostJSON)
+      |> render(:index, posts: feed, meta: meta)
+    end
+
   end
 
   def profile(conn, %{"user_id" => user_id}) do

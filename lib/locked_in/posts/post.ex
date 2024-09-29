@@ -3,6 +3,12 @@ defmodule LockedIn.Posts.Post do
   import Ecto.Changeset
   @derive {Saxy.Builder, name: "post", attributes: [:id, :media_paths], children: [:content]}
   @derive {Jason.Encoder, only: [:id, :content, :media_paths, :posted_at, :user_id]}
+  @derive {Flop.Schema,
+           filterable: [:posted_at],
+           sortable: [:posted_at],
+           default_limit: 10,
+           max_limit: 100}
+
   schema "posts" do
     field :content, :string
     field :media, :any, virtual: true

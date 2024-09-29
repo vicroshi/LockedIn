@@ -4,9 +4,22 @@ defmodule LockedInWeb.PostJSON do
   @doc """
   Renders a list of posts.
   """
+
+  def index(%{posts: posts, meta: meta}) do
+    %{
+      data: for(post <- posts, do: data(post)),
+      hasNextPage: meta.has_next_page?,
+      nextPage: meta.next_page,
+      # start_cursor: meta.start_cursor
+    }
+  end
+
   def index(%{posts: posts}) do
     %{data: for(post <- posts, do: data(post))}
   end
+
+
+
 
   @doc """
   Renders a single post.
