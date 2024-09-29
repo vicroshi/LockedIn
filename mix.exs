@@ -65,7 +65,10 @@ defmodule LockedIn.MixProject do
       {:saxy, "~> 1.5"},
       {:floki, "~> 0.36.0"},
       {:xml_builder, "~> 2.1"},
-      {:rustler, "~> 0.34.0", runtime: false}
+      {:rustler, "~> 0.34.0", runtime: false},
+      # {:quarto, "~> 1.1.6"}
+      # {:paginator, "~> 1.2.0"}
+
     ]
   end
 

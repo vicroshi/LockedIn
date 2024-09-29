@@ -8,8 +8,7 @@ defmodule LockedIn.Jobs do
   alias LockedIn.Accounts.Connection
   alias Ecto.Changeset
   alias LockedIn.Repo
-
-  alias LockedIn.Jobs.Job
+  alias LockedIn.Jobs.{Job, Application}
   alias LockedIn.Skills
   @doc """
   Returns the list of jobs.
@@ -76,12 +75,49 @@ defmodule LockedIn.Jobs do
                       viewed: not is_nil(v.job_id),
                       applied: not is_nil(a.job_id)}
         # select: j
-    connections_jobs = Repo.all(
-      connections_jobs_query
-      |> union_all(^reverse_connections_jobs_query))
-    skills_intersection = Repo.all skills_intersection_query
-    Enum.uniq_by(skills_intersection ++ connections_jobs, & &1.id)
-    |> Enum.sort_by(& &1.inserted_at,  {:desc, DateTime})
+    # connections_jobs = Repo.all(
+    #   connections_jobs_query
+    #   |> union_all(^reverse_connections_jobs_query))
+    # skills_intersection = Repo.all skills_intersection_query
+    # Enum.uniq_by(skills_intersection ++ connections_jobs, & &1.id)
+    # |> Enum.sort_by(& &1.inserted_at,  {:desc, DateTime})
+    # Repo.all(
+    #   from
+    # )
+    jobs_with_matching_skills =
+      from j in Job,
+      left_join: js in "job_skills",
+      on: js.job_id == j.id,
+      left_join: us in Accounts.UserSkill,
+      on: us.skill_id == js.skill_id and us.public == true and us.user_id == ^user_id,
+      group_by: j.id,
+      select: %{j | matching_skills: count(us.skill_id)}
+
+    recommended_jobs =
+      from rj in LockedIn.Recommendations.RecommendedJob,
+      where: rj.user_id == ^user_id,
+      select: %{id: rj.job_id}
+
+    connections_jobs =
+      from j in Job,
+      join: c in LockedIn.Accounts.Connection,
+      on: c.has_accepted == true and (c.requester_id == j.user_id and c.requestee_id == ^user_id or c.requestee_id == j.user_id and c.requester_id == ^user_id),
+      select: %{id: j.id}
+
+    feed = Repo.all(
+      from j in subquery(jobs_with_matching_skills),
+      left_join: v in "job_views",
+      on: v.job_id == j.id and v.user_id == ^user_id,
+      left_join: a in Application,
+      on: a.job_id == j.id and a.applicant_id == ^user_id,
+      left_join: rj in LockedIn.Recommendations.RecommendedJob,
+      on: rj.job_id == j.id and rj.user_id == ^user_id,
+      where: j.user_id != ^user_id,
+      where: j.id in subquery(recommended_jobs),
+      or_where: j.id in subquery(connections_jobs),
+      select: %{j | viewed: not is_nil(v.job_id), applied: not is_nil(a.job_id), recommended: not is_nil(rj.job_id)}
+    )
+    feed |> Repo.preload([:skills, :user])
   end
 
   @doc """

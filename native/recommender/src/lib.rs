@@ -164,7 +164,8 @@ fn job_recommendations( users: Vec<User>, jobs: Vec<Job>, job_views: Vec<(i64,i6
         if jobs[*job_idx as usize].count == 0 {
             ratings[[*user_idx as usize, *job_idx as usize]] = 1.0;
         } else {
-            ratings[[*user_idx as usize, *job_idx as usize]] = match_perc*6.0;
+            // ratings[[*user_idx as usize, *job_idx as usize]] = match_perc*6.0;
+            ratings[[*user_idx as usize, *job_idx as usize]] = 6.0;
         }
         // ratings[[*user_idx as usize, *job_idx as usize]] = 
     }

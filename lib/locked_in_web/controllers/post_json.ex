@@ -28,6 +28,7 @@ defmodule LockedInWeb.PostJSON do
       like_count: post.like_count,
       liked: post.liked,
       viewed: post.viewed,
+      recommended: post.recommended,
       comment_count: post.comment_count
     }
   end

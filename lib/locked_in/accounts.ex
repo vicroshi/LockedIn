@@ -23,7 +23,7 @@ defmodule LockedIn.Accounts do
     if hd(ids) == "on" do
       Repo.all(
         from u in User,
-        where: u.email != LockedIn.admin_email(),
+        where: u.email != ^LockedIn.admin_email(),
         preload: [:posts, :comments, :likes, :connections_join, :reverse_connections_join, :skills, jobs: :skills]
       )
     else
@@ -41,10 +41,99 @@ defmodule LockedIn.Accounts do
     Repo.all(where(User, [u], u.id != ^admin_id))
   end
 
+  # user_posts_query =
+    #   from p in Post,
+    #   # preload: [:user, :likes],
+    #   join: l in subquery(posts_with_count_query),
+    #   on: p.id == l.id,
+    #   where: p.user_id == ^user_id,
+    #   distinct: true,
+    #   select: %{p | like_count: l.like_count, comment_count: l.comment_count}
+
+    # user_liked_posts_query =
+    #   from p in Post,
+    #   preload: [:user, :likes],
+    #   join: lp in subquery(posts_with_count_query),
+    #   on: p.id == lp.id,
+    #   join: l in assoc(p, :likes),
+    #   on: l.post_id == p.id,
+    #   where: l.user_id == ^user_id,
+    #   distinct: true,
+    #   select: %{p | like_count: lp.like_count,
+    #                 comment_count: lp.comment_count,
+    #                 liked: true,
+    #                 viewed: true}
+
+    # connection_posts_query =
+    #   from p in Post,
+    #   join: lp in subquery(posts_with_count_query),
+    #   on: p.id == lp.id,
+    #   join: c in Connection,
+    #   on: c.requestee_id == p.user_id,
+    #   where: c.requester_id == ^user_id and c.has_accepted == true,
+    #   distinct: true,
+    #   select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
+
+    # connection_liked_posts_query =
+    #   from p in Post,
+    #   join: lp in subquery(posts_with_count_query),
+    #   on: p.id == lp.id,
+    #   join: l in Like,
+    #   on: l.post_id == p.id,
+    #   join: c in Connection,
+    #   on: c.requestee_id == l.user_id,
+    #   where: c.requester_id == ^user_id  and c.has_accepted == true,
+    #   distinct: true,
+    #   select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
+
+    # reverse_connection_posts_query =
+    #   from p in Post,
+    #   join: lp in subquery(posts_with_count_query),
+    #   on: p.id == lp.id,
+    #   join: c in Connection,
+    #   on: c.requester_id == p.user_id,
+    #   where: c.requestee_id == ^user_id and c.has_accepted == true,
+    #   distinct: true,
+    #   select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
+
+    # reverse_connection_liked_posts_query =
+    #   from p in Post,
+    #   join: lp in subquery(posts_with_count_query),
+    #   on: p.id == lp.id,
+    #   join: l in Like,
+    #   on: l.post_id == p.id,
+    #   join: c in Connection,
+    #   on: c.requester_id == l.user_id,
+    #   where: c.requestee_id == ^user_id and c.has_accepted == true,
+    #   distinct: true,
+    #   select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
+
+    # feed_query = user_posts_query
+    #              |> union(^connection_posts_query)
+    #              |> union(^connection_liked_posts_query)
+    #              |> union(^reverse_connection_posts_query)
+    #              |> union(^reverse_connection_liked_posts_query)
+
+    #   # select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
+    # final_query =
+    #   from p in subquery(feed_query),
+    #   left_join: v in "post_views",
+    #   on: v.user_id == ^user_id and v.post_id == p.id,
+    #   preload: [:user, :likes],
+    #   order_by: [desc: p.posted_at],
+    #   select: %{p | like_count: p.like_count,
+    #                 comment_count: p.comment_count,
+    #                 liked: false,
+    #                 viewed: not is_nil(v.post_id)}
+    # # liked_posts = Repo.all(user_liked_posts_query) |> IO.inspect(label: "liked_posts")
+    # # final_posts = Repo.all(final_query) |> IO.inspect(label: "final_posts")
+    # # Enum.uniq_by(liked_posts ++ final_posts, & &1.id)
+    # # |> Enum.sort_by(& &1.posted_at, {:desc,NaiveDateTime})
+
   def get_feed(user) do
     user_id = user.id
 
-    posts_with_count_query =
+      posts_with_count_query =
       from p in Post,
         # join: l in assoc(p, :likes),
         left_join: l in Like,
@@ -52,114 +141,55 @@ defmodule LockedIn.Accounts do
         left_join: c in Comment,
         on: c.post_id == p.id,
         group_by: p.id,
-        select: %{p | like_count: count(l.user_id, :distinct), comment_count: count(c.id, :distinct), liked: not is_nil()}
-    user_posts_query =
-      from p in Post,
-      # preload: [:user, :likes],
-      join: l in subquery(posts_with_count_query),
-      on: p.id == l.id,
-      where: p.user_id == ^user_id,
-      distinct: true,
-      select: %{p | like_count: l.like_count, comment_count: l.comment_count}
+        select: %{p | like_count: count(l.user_id, :distinct), comment_count: count(c.id, :distinct)}
 
-    user_liked_posts_query =
+    connections_query =
       from p in Post,
-      preload: [:user, :likes],
-      join: lp in subquery(posts_with_count_query),
-      on: p.id == lp.id,
-      join: l in assoc(p, :likes),
-      on: l.post_id == p.id,
+      join: c in Connection,
+      on: c.has_accepted == true,
+      where: c.requester_id == p.user_id and c.requestee_id == ^user_id,
+      or_where: c.requestee_id == p.user_id and c.requester_id == ^user_id,
+      select: %{id: p.id}
+
+    recommended_query =
+      from p in Post,
+      join: rp in LockedIn.Recommendations.RecommendedPost,
+      on: rp.post_id == p.id and rp.user_id == ^user_id,
+      select: %{id: p.id}
+
+    liked_query =
+      from l in Like,
       where: l.user_id == ^user_id,
-      distinct: true,
-      select: %{p | like_count: lp.like_count,
-                    comment_count: lp.comment_count,
-                    liked: true,
-                    viewed: true}
+      select: %{id: l.post_id}
 
-    connection_posts_query =
+    connections_liked_query =
       from p in Post,
-      join: lp in subquery(posts_with_count_query),
-      on: p.id == lp.id,
-      join: c in Connection,
-      on: c.requestee_id == p.user_id,
-      where: c.requester_id == ^user_id and c.has_accepted == true,
-      distinct: true,
-      select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
-
-    connection_liked_posts_query =
-      from p in Post,
-      join: lp in subquery(posts_with_count_query),
-      on: p.id == lp.id,
       join: l in Like,
       on: l.post_id == p.id,
       join: c in Connection,
-      on: c.requestee_id == l.user_id,
-      where: c.requester_id == ^user_id  and c.has_accepted == true,
-      distinct: true,
-      select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
+      on: c.has_accepted == true,
+      where: c.requester_id == ^user_id and c.requestee_id == l.user_id,
+      or_where: c.requestee_id == ^user_id and c.requester_id == l.user_id,
+      select: %{id: p.id}
 
-    reverse_connection_posts_query =
-      from p in Post,
-      join: lp in subquery(posts_with_count_query),
-      on: p.id == lp.id,
-      join: c in Connection,
-      on: c.requester_id == p.user_id,
-      where: c.requestee_id == ^user_id and c.has_accepted == true,
-      distinct: true,
-      select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
 
-    reverse_connection_liked_posts_query =
-      from p in Post,
-      join: lp in subquery(posts_with_count_query),
-      on: p.id == lp.id,
-      join: l in Like,
-      on: l.post_id == p.id,
-      join: c in Connection,
-      on: c.requester_id == l.user_id,
-      where: c.requestee_id == ^user_id and c.has_accepted == true,
-      distinct: true,
-      select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
-
-    feed_query = user_posts_query
-                 |> union(^connection_posts_query)
-                 |> union(^connection_liked_posts_query)
-                 |> union(^reverse_connection_posts_query)
-                 |> union(^reverse_connection_liked_posts_query)
-
-      # select: %{p | like_count: lp.like_count, comment_count: lp.comment_count}
-    final_query =
-      from p in subquery(feed_query),
+    feed = Repo.all(
+     from p in subquery(posts_with_count_query),
       left_join: v in "post_views",
       on: v.user_id == ^user_id and v.post_id == p.id,
-      preload: [:user, :likes],
-      order_by: [desc: p.posted_at],
-      select: %{p | like_count: p.like_count,
-                    comment_count: p.comment_count,
-                    liked: false,
-                    viewed: not is_nil(v.post_id)}
-    liked_posts = Repo.all(user_liked_posts_query) |> IO.inspect(label: "liked_posts")
-    # recommended_posts = Repo.all(
-    #   from p in Post,
-    #   preload: [:user, :likes],
-    #   join: lp in subquery(posts_with_count_query),
-    #   on: p.id == lp.id,
-    #   left_join: v in "post_views",
-    #   on: v.user_id == ^user_id and v.post_id == p.id,
-    #   join: rp in "recommended_posts",
-    #   on: rp.post_id == p.id and rp.user_id == ^user_id,
-    #   distinct: true,
-    #   select: %{p | like_count: lp.like_count,
-    #             comment_count: lp.comment_count,
-    #             liked:
-    #           }
-    #   order_by: [desc: p.posted_at],
-
-    # )
-    final_posts = Repo.all(final_query) |> IO.inspect(label: "final_posts")
-    Enum.uniq_by(liked_posts ++ final_posts, & &1.id)
-    |> Enum.sort_by(& &1.posted_at, {:desc,NaiveDateTime})
-    # |> IO.inspect(label: "merged")
-    # []
+      left_join: l in Like,
+      on: l.post_id == p.id and l.user_id == ^user_id,
+      left_join: rp in LockedIn.Recommendations.RecommendedPost,
+      on: rp.post_id == p.id and rp.user_id == ^user_id,
+      where: p.id in subquery(recommended_query),
+      or_where: p.id in subquery(liked_query),
+      or_where: p.id in subquery(connections_liked_query),
+      or_where: p.id in subquery(connections_query),
+      select: %{p | like_count: p.like_count, comment_count: p.comment_count,
+       liked: not is_nil(l.post_id), viewed: not is_nil(v.post_id), recommended: not is_nil(rp.post_id)}
+      )
+      IO.inspect(length(feed))
+      feed |> Repo.preload([:user])
   end
 
   # def get_feed(user) do

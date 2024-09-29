@@ -9,8 +9,9 @@ defmodule LockedIn.Posts.Post do
     field :media_paths, {:array, :string}, default: []
     field :like_count , :integer, virtual: true
     field :comment_count , :integer, virtual: true
-    field :liked, :boolean, virtual: true, default: true
+    field :liked, :boolean, virtual: true, default: false
     field :viewed, :boolean, virtual: true, default: false
+    field :recommended, :boolean, virtual: true, default: false
     belongs_to :user, LockedIn.Accounts.User
     has_many :likes, LockedIn.Posts.Like
     has_many :users_liked, through: [:likes, :user]
