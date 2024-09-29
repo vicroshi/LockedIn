@@ -5,6 +5,7 @@ defmodule LockedIn.Accounts do
 
   import Ecto.Query, warn: false
   # alias LockedIn.Skills.Skill
+  alias LockedIn.Posts
   alias Inspect.LockedIn.Accounts.User
   alias Phoenix.LiveViewTest.Upload
   alias Ecto.Multi
@@ -22,6 +23,7 @@ defmodule LockedIn.Accounts do
     if hd(ids) == "on" do
       Repo.all(
         from u in User,
+        where: u.email != LockedIn.admin_email(),
         preload: [:posts, :comments, :likes, :connections_join, :reverse_connections_join, :skills, jobs: :skills]
       )
     else
@@ -50,7 +52,7 @@ defmodule LockedIn.Accounts do
         left_join: c in Comment,
         on: c.post_id == p.id,
         group_by: p.id,
-        select: %{p | like_count: count(l.user_id, :distinct), comment_count: count(c.id, :distinct)}
+        select: %{p | like_count: count(l.user_id, :distinct), comment_count: count(c.id, :distinct), liked: not is_nil()}
     user_posts_query =
       from p in Post,
       # preload: [:user, :likes],
@@ -136,6 +138,23 @@ defmodule LockedIn.Accounts do
                     liked: false,
                     viewed: not is_nil(v.post_id)}
     liked_posts = Repo.all(user_liked_posts_query) |> IO.inspect(label: "liked_posts")
+    recommended_posts = Repo.all(
+      from p in Post,
+      preload: [:user, :likes],
+      join: lp in subquery(posts_with_count_query),
+      on: p.id == lp.id,
+      left_join: v in "post_views",
+      on: v.user_id == ^user_id and v.post_id == p.id,
+      join: rp in "recommended_posts",
+      on: rp.post_id == p.id and rp.user_id == ^user_id,
+      distinct: true,
+      select: %{p | like_count: lp.like_count,
+                comment_count: lp.comment_count,
+                liked:
+              }
+      order_by: [desc: p.posted_at],
+
+    )
     final_posts = Repo.all(final_query) |> IO.inspect(label: "final_posts")
     Enum.uniq_by(liked_posts ++ final_posts, & &1.id)
     |> Enum.sort_by(& &1.posted_at, {:desc,NaiveDateTime})
