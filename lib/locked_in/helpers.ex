@@ -10,7 +10,11 @@ defmodule LockedIn.Helpers do
 
   def sanitize(str) do
     # IO.inspect(str)
-    replace_ampersand(str)
+    if not is_nil(str) do
+      replace_ampersand(str)
+    else
+      ""
+    end
     # {:safe, iosafe} = Phoenix.HTML.html_escape(str)
     # IO.iodata_to_binary(iosafe)
   end
@@ -54,8 +58,12 @@ def test_recommender do
     group_by: [u.id, j.id],
     select: %{user_id: u.id, job_id: j.id, count: count(s.id)}
   )
-  results = Recommender.job_recommendations(users, jobs, views, applies, matching)
-  LockedIn.Recommendations.insert_ratings_jobs(results)
+  recs = Repo.all(LockedIn.Recommendations.RecommendedJob)
+  IO.inspect(recs)
+  {results, deletes} = Recommender.job_recommendations(users, jobs, views, applies, matching, recs)
+  IO.inspect(results)
+  IO.inspect(deletes)
+  LockedIn.Recommendations.update_ratings_jobs(results,deletes)
 end
 
 end

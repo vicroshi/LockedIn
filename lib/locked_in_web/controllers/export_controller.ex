@@ -7,7 +7,9 @@ defmodule LockedInWeb.ExportController do
 
 
   def export(conn, params) do
+    IO.inspect(params) 
     ids = params["userIds"]
+
     # options = Enum.reduce(params["export_options"],[], fn opt,acc ->
     #   if opt === "network" do
     #     [ :connections, :reverse_connections | acc]

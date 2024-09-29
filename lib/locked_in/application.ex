@@ -17,7 +17,8 @@ defmodule LockedIn.Application do
       # {LockedIn.Worker, arg},
       # Start to serve requests, typically the last entry
       LockedInWeb.Endpoint,
-      # LockedIn.JobsTask
+      LockedIn.JobsTask,
+      LockedIn.PostsTask,
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -4,9 +4,10 @@ defmodule LockedIn.Recommender do
     error()
   end
 
-  # def job_recommendations(_users, _jobs, _ratings) do
-    # error()
-  # end
+  def post_recommendations(_user, _posts, _views, _likes, _comments, _recommendations) do
+    error()
+  end
+
   defp error(), do: :erlang.nif_error(:nif_not_loaded)
 
 end

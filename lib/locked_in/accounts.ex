@@ -18,11 +18,20 @@ defmodule LockedIn.Accounts do
 
 
   def fetch_users_data(ids, preloads \\ []) do
-    Repo.all(
-      from u in User,
-      where: u.id in ^ids,
-      preload: [:posts, :comments, :likes, :connections_join, :reverse_connections_join, :skills, jobs: :skills]
-    )
+    IO.inspect(ids)
+    if hd(ids) == "on" do
+      Repo.all(
+        from u in User,
+        preload: [:posts, :comments, :likes, :connections_join, :reverse_connections_join, :skills, jobs: :skills]
+      )
+    else
+      Repo.all(
+        from u in User,
+        where: u.id in ^ids,
+        preload: [:posts, :comments, :likes, :connections_join, :reverse_connections_join, :skills, jobs: :skills]
+      )
+    end
+
   end
 
 

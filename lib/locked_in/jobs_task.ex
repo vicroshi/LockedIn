@@ -18,9 +18,9 @@ defmodule LockedIn.JobsTask do
   end
 
   def handle_info(:work, state) do
-    results = get_recommendations()
+    {results, deletes} = get_recommendations()
     # |>IO.inspect()
-    _ = Recommendations.insert_ratings_jobs(results)
+    Recommendations.update_recommended_jobs(results, deletes)
     Logger.info("Got job ratings")
     schedule_work()
     {:noreply, state}
@@ -32,7 +32,11 @@ defmodule LockedIn.JobsTask do
 
 
   defp get_recommendations  do
-    users = Repo.all(LockedIn.Accounts.User |> order_by(:id))
+    users = Repo.all( from u in LockedIn.Accounts.User,
+    order_by: [:id],
+    select: %{id: u.id}
+    )
+
     jobs = Repo.all(
       from j in LockedIn.Jobs.Job,
       left_join: s in "job_skills",
@@ -41,8 +45,6 @@ defmodule LockedIn.JobsTask do
       order_by: [:id],
       select: %{id: j.id, user_id: j.user_id, count: count(s.job_id)}
     )
-
-
     views = Repo.all(
       from v in "job_views",
       select: {v.user_id, v.job_id}
@@ -65,6 +67,8 @@ defmodule LockedIn.JobsTask do
       group_by: [u.id, j.id],
       select: %{user_id: u.id, job_id: j.id, count: count(s.id)}
     )
-    Recommender.job_recommendations(users, jobs, views, applies, matching)
+    recs = Repo.all(LockedIn.Recommendations.RecommendedJob)
+    IO.inspect(recs, label: "Recommended Jobs")
+    Recommender.job_recommendations(users, jobs, views, applies, matching, recs)
   end
 end
